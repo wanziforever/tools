@@ -1,0 +1,3 @@
+log.c  --log implementation for print log, also print the source code file name 
+         line number
+write_test --just write data to a given directory which is used to test disk writable
