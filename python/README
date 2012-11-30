@@ -1,2 +1,4 @@
 ////// NGB project//////
 load_wfe.py  --util to bulk upload media file, will call the wfesim tool internally
+parselog.py  --util to parse the dfs log to record the iotask item to read and fhinish
+               read from disk, and also report the time who consumed too much time
