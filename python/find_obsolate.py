@@ -24,7 +24,6 @@ NOTE!! The tool cannot do opposite that finding out the file exist in
 
 """
 
-from __future__ import with_statement
 import sys
 import re
 
@@ -40,8 +39,8 @@ def open_file(file_name):
     """ open file, return None if fail, capture the system exception,
     and handle open file fail by self """
     try:
-        with open(file_name, "r") as fp:
-            return fp
+        fp = open(file_name, "r")
+        return fp
     except:
         return None
         
@@ -49,11 +48,12 @@ def usage():
     log("%s <dfs_file_list> <oss_file_list>"%sys.argv[0])
 
 def isIgnored(line):
-    """ ignore the blank and comments line """
-    blankRe = re.compile(r'/n[/s| ]*/r')
+    """ ignore the blank line """
+    blankRe = re.compile(r'\s*[\r|\n]$')
     m = blankRe.match(line)
     if m:
         return True
+    return False
 
 def validatePath(line):
     """ the file path should have the following format in DFS
@@ -100,9 +100,9 @@ def putContentIdToHash(oss_file_name, oss_dict):
         line = fp.readline()
         if not line:
             break
-        line = line.strip()
         if isIgnored(line):
             continue
+        line = line.strip()
         cid = getOSSContentId(line)
         if not cid:
             continue
@@ -120,9 +120,9 @@ def putContentIdToList(dfs_file_name, dfs_list):
         line = fp.readline()
         if not line:
             break
-        line = line.strip()
         if isIgnored(line):
             continue
+        line = line.strip()
         media_type, content_id = parseDFSPath(line)
         if not content_id:
             continue
