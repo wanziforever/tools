@@ -3,19 +3,19 @@
 tool for finding out the different record, which are existed in A file,
 but not in B file. for the record format in the two files, there is no
 restriction, but the format pattern should be provided, which is used
-to capture valid part of data from input record, below are one example:
+to capture valid part of data from given record, below are one example:
 The tool will require following two input files:
 1) the path of the file dfs_list.txt (file A)
    example format
    /media/2121110000
    /media/2121110001
    ...
-   the PATTERN of file A can be "\/\w+\/(\w+)", which can capture contentID
-2) the path of the file os_list.txt (file B)
+   the PATTERN of file A can be "\/\w+\/(\w+)", which can capture digit
+2) the path of the file oss_list.txt (file B)
    2121110000
    2121110001
    ...
-   the pattern of file B can be ""
+   the pattern of file B can be "(.+)"
    
 the above example is to find out the the contentid exist in DFS, but not
 in OSS
@@ -26,16 +26,16 @@ captured record in file A to lookup the HASH array, if it can be found,
 it means the file exist both in file A and file B; if not, it means
 the file only exist in file A. and will be reported to screen at last.
 
-NOTE!! The tool cannot do opposite that finding out the file exist in
-       OSS, but not in DFS.
+NOTE!! The tool cannot do opposite that finding out the record exist in
+       B, but not in A.
 """
 
 import sys
 import re
+
 # following to regular expression are used to capture valid data from
 # file A and file B, the regular expression should contain only one
 # group, and program will only capture the first captured group.
-
 re_for_file_A = re.compile(r"\/\w+\/(\w+)");
 re_for_file_B = re.compile(r"(.+)");
 
