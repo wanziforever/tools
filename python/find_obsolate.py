@@ -1,35 +1,47 @@
 #!/usr/bin/env python
 """
-tool for finding out the obsolate files , which are existed in DFS,
-but not in OSS.
+tool for finding out the different files, which are existed in A file,
+but not in B file. for the record format in the two files, there is no
+restriction, but the format pattern should be provided, which is used
+to capture valid part of data from input record, below are one example:
 The tool will require following two input files:
-1) file path for each file in the DFS system
+1) the path of the file dfs_list.txt (file A)
    example format
    /media/2121110000
    /media/2121110001
    ...
-2) content id list in OSS system
+   the PATTERN of file A can be "\/\w+\/(\w+)", which can capture contentID
+2) the path of the file os_list.txt (file B)
    2121110000
    2121110001
    ...
+   the pattern of file B can be ""
+   
+the above example is to find out the the contentid exist in DFS, but not
+in OSS
 
-the procedure to implement the work is putting all the OSS contend id
-to the HASH array, and parse the file path in DFS file to get content
-id, and lookup it in OSS contend id HASH, if it can be found, it means
-the file exist both in DFS and OSS; if not, it means the file only exist
-in DFS. the obsolate file in DFS will be report to screen at last.
+How the tool work:
+putting all the captured record in file B to the HASH array, and use
+captured record in file A to lookup the HASH array, if it can be found,
+it means the file exist both in file A and file B; if not, it means
+the file only exist in file A. and will be reported to screen at last.
 
 NOTE!! The tool cannot do opposite that finding out the file exist in
        OSS, but not in DFS.
-
 """
 
 import sys
 import re
+# following to regular expression are used to capture valid data from
+# file A and file B, the regular expression should contain only one
+# group, and program will only capture the first captured group.
 
-oss_dict = {}
-dfs_list = []
-missing_list = []
+re_for_file_A = re.compile(r"\/\w+\/(\w+)");
+re_for_file_B = re.compile(r"(.+)");
+
+to_dict = {}
+to_list = []
+diff_list = []
         
 def log(string):
     # sys.stdout.write(string)
@@ -45,7 +57,11 @@ def open_file(file_name):
         return None
         
 def usage():
-    log("%s <dfs_file_list> <oss_file_list>"%sys.argv[0])
+    log("***********************************************************\n"
+        "script used to find the record in file_A, but not in file_B\n"
+        "Usage: %s <file_A> <file_B>\n"
+        "************************************************************"
+        %sys.argv[0])
 
 def isIgnored(line):
     """ ignore the blank line """
@@ -55,46 +71,46 @@ def isIgnored(line):
         return True
     return False
 
-def validatePath(line):
-    """ the file path should have the following format in DFS
-    input file:
-        /xx/xxxxx  (example /media/201212030050010)
+def validatePath(record, expression):
+    """ the record should be in a given valid format, which can satisfy
+    a given regular expression
+    example:
+        /media/201212030050010 can satisfy "\/\w+\/(\w+)"
     """
-    pathRe = re.compile(r"^\/\w+\/\w+")
-    m = pathRe.match(line)
+    m = expression.match(record)
     if m:
         return True
-    log("validation fail for path %s"%line)
+    log("validation fail for path %s"%record)
     return False
     
-def parseDFSPath(line):
-    """ parse the input line in the dfs_file_list, and return
-        the media type and content id
-        example: /media/201212030050010,
-                 return (media, 201212030050010)
-        Argument: line input path string
-        Return:   type and contentID pair
+def captureData(line, expression):
+    """ parse the input line in the file_X, and return the captured
+    data which is considered a valid data for comparation
+    the regular expression should contain only one group, and program
+    will only capture the first captured group.
+      example:
+        record    /media/201212030050010
+        re        "\/\w+\/(\w+)"
+        captured  201212030050010
+      Argument:
+        line initial data of the record
+        re_for_file_X regular expression for file X
+      Return:   valid captured data 
     """
-    if not validatePath(line):
-        return (None, None)
-    _, media_type , contentID = line.split('/', 2)
-    return (media_type, contentID)
+    m = expression.match(line)
+    try:
+        ret = m.group(1)
+    except:
+        log("fail to capture data for: %s, check your regular expression"%line)
+        exit()
+    return ret
 
-def getOSSContentId(line):
-    """ get contentid from line of string in OSS file, the
-    implementation depend on the input file format of OSS
-    content list file.
-    """
-    # currently simply return the whole line, suppose the OSS
-    # input file only have one contendID one line
-    return line
-    
-def putContentIdToHash(oss_file_name, oss_dict):
+def putRecordToHash(file_name, expression, to_dict):
     """ read the content id from OSS input file, and put it into
     the hash table """
-    fp = open_file(oss_file_name)
+    fp = open_file(file_name)
     if not fp:
-        log("fail to open file %s"%oss_file_name)
+        log("fail to open file %s"%file_name)
         exit()
     while True:
         line = fp.readline()
@@ -103,18 +119,20 @@ def putContentIdToHash(oss_file_name, oss_dict):
         if isIgnored(line):
             continue
         line = line.strip()
-        cid = getOSSContentId(line)
-        if not cid:
+        if not validatePath(line, expression):
             continue
-        oss_dict[cid] = cid
+        record = captureData(line, expression)
+        if not record:
+            continue
+        to_dict[record] = record
     fp.close()
 
-def putContentIdToList(dfs_file_name, dfs_list):
+def putRecordToList(file_name, expression, to_list):
     """ parse the file path to get the content id, and put it to
     the list """
-    fp = open_file(dfs_file_name)
+    fp = open_file(file_name)
     if not fp:
-        log("fail to open file %s"%dfs_file_name)
+        log("fail to open file %s"%file_name)
         exit()
     while True:
         line = fp.readline()
@@ -123,48 +141,49 @@ def putContentIdToList(dfs_file_name, dfs_list):
         if isIgnored(line):
             continue
         line = line.strip()
-        media_type, content_id = parseDFSPath(line)
-        if not content_id:
+        if not validatePath(line, expression):
             continue
-        dfs_list.append(content_id)
+        record = captureData(line, expression)
+        if not record:
+            continue
+        to_list.append(record)
     fp.close()
 
-def LookupListInDict(slist, sdict, mlist):
+def LookupListInDict(slist, sdict, dlist):
     """ loop the source list entry, and check whether the entry
     exist in the dictionary, if not exist, add it to the missing
     list 
     argument:
-    slist source contentID list in dfs
-    sdict  source contentID dict in OSS
-    mlist missing contentID list
+    slist source list from file A
+    sdict  source dictionary from file B
+    dlist different record list
     """
     if len(slist) == 0:
         log("there is no valid contentID in DFS")
         exit()
-    for cid in slist:
-        if cid in sdict:
+    for record in slist:
+        if record in sdict:
             continue
         else:
-            mlist.append(cid)
+            dlist.append(record)
 
-
-def reportDiff():
-    global missing_list
+def reportDiff(issue_record_list):
     log("got the following content was obsolate in DFS\n"
         "(content exist in HDF, but not in OSS):")
-    for cid in missing_list:
-        log("%s"%cid)
+    for record in issue_record_list:
+        log("%s"%record)
     
-def call_diff(dfs_file_name, oss_file_name):
-    global oss_dict, dfs_list, missing_list
-    putContentIdToHash(oss_file_name, oss_dict)
-    putContentIdToList(dfs_file_name, dfs_list)
-    LookupListInDict(dfs_list, oss_dict, missing_list)
-    reportDiff()
+def call_diff(file_A, expression_A, file_B, expression_B):
+    global to_dict, to_list, diff_list
+    putRecordToHash(file_B, expression_B, to_dict)
+    putRecordToList(file_A, expression_A, to_list)
+    LookupListInDict(to_list, to_dict, diff_list)
+    reportDiff(diff_list)
 
 if __name__ == "__main__":
     if len(sys.argv) != 3:
         usage()
         exit()
-    call_diff(sys.argv[1], sys.argv[2])
-    
+    fileA = sys.argv[1]
+    fileB = sys.argv[2]
+    call_diff(fileA, re_for_file_A, fileB, re_for_file_B)
