@@ -71,7 +71,7 @@ def isIgnored(line):
         return True
     return False
 
-def validatePath(record, expression):
+def validateData(record, expression):
     """ the record should be in a given valid format, which can satisfy
     a given regular expression
     example:
@@ -98,6 +98,8 @@ def captureData(line, expression):
       Return:   valid captured data 
     """
     m = expression.match(line)
+    if not m:
+        return None
     try:
         ret = m.group(1)
     except:
@@ -119,8 +121,6 @@ def putRecordToHash(file_name, expression, to_dict):
         if isIgnored(line):
             continue
         line = line.strip()
-        if not validatePath(line, expression):
-            continue
         record = captureData(line, expression)
         if not record:
             continue
@@ -141,8 +141,6 @@ def putRecordToList(file_name, expression, to_list):
         if isIgnored(line):
             continue
         line = line.strip()
-        if not validatePath(line, expression):
-            continue
         record = captureData(line, expression)
         if not record:
             continue
