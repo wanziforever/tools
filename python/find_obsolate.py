@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """
-tool for finding out the different files, which are existed in A file,
+tool for finding out the different record, which are existed in A file,
 but not in B file. for the record format in the two files, there is no
 restriction, but the format pattern should be provided, which is used
 to capture valid part of data from input record, below are one example:
