@@ -83,6 +83,9 @@ def captureData(line, expression):
 def reportDiff(dup_record_list):
     global to_dict
     log("got the following content was duplicated(times):")
+    if len(dup_record_list) == 0:
+        log("there is no duplicated record")
+        return
     for record in dup_record_list:
         log("%s(%d)"%(record, to_dict[record]))
     
