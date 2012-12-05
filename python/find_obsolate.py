@@ -36,7 +36,8 @@ import re
 # following to regular expression are used to capture valid data from
 # file A and file B, the regular expression should contain only one
 # group, and program will only capture the first captured group.
-re_for_file_A = re.compile(r"\/\w+\/(\w+)");
+#re_for_file_A = re.compile(r"\/\w+\/(\w+)");
+re_for_file_A = re.compile(r"(.+)");
 re_for_file_B = re.compile(r"(.+)");
 
 to_dict = {}
