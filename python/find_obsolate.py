@@ -36,14 +36,29 @@ import re
 # following to regular expression are used to capture valid data from
 # file A and file B, the regular expression should contain only one
 # group, and program will only capture the first captured group.
-#re_for_file_A = re.compile(r"\/\w+\/(\w+)");
-re_for_file_A = re.compile(r"(.+)");
+re_for_file_A = re.compile(r"\/\w+\/(\w+)");
+#re_for_file_A = re.compile(r"(.+)");
 re_for_file_B = re.compile(r"(.+)");
+
+# flag to control the output that whether to only print the valid data
+# which was captured by regular expression, if it set to no, will print
+# initial data.
+only_print_valid_data = False
 
 to_dict = {}
 to_list = []
 diff_list = []
-        
+
+class entry:
+    def __init__(self, initial_input, expression):
+        self.initial_data = initial_input
+        self.valid_data = captureData(self.initial_data, expression)
+    def getInitialData(self):
+        return self.initial_data
+    def getValidData(self):
+        return self.valid_data
+    
+
 def log(string):
     # sys.stdout.write(string)
     print string
@@ -122,10 +137,10 @@ def putRecordToHash(file_name, expression, to_dict):
         if isIgnored(line):
             continue
         line = line.strip()
-        record = captureData(line, expression)
-        if not record:
+        hash_entry = entry(line, expression)
+        if not hash_entry.getValidData():
             continue
-        to_dict[record] = record
+        to_dict[hash_entry.getValidData()] = hash_entry
     fp.close()
 
 def putRecordToList(file_name, expression, to_list):
@@ -142,10 +157,10 @@ def putRecordToList(file_name, expression, to_list):
         if isIgnored(line):
             continue
         line = line.strip()
-        record = captureData(line, expression)
-        if not record:
+        list_entry = entry(line, expression)
+        if not list_entry.getValidData():
             continue
-        to_list.append(record)
+        to_list.append(list_entry)
     fp.close()
 
 def LookupListInDict(slist, sdict, dlist):
@@ -161,7 +176,7 @@ def LookupListInDict(slist, sdict, dlist):
         log("there is no valid contentID in DFS")
         exit()
     for record in slist:
-        if record in sdict:
+        if record.getValidData() in sdict:
             continue
         else:
             dlist.append(record)
@@ -170,7 +185,10 @@ def reportDiff(issue_record_list):
     log("got the following content was obsolate in DFS\n"
         "(content exist in HDF, but not in OSS):")
     for record in issue_record_list:
-        log("%s"%record)
+        if only_print_valid_data:
+            log("%s"%record.getValidData())
+        else:
+            log("%s"%record.getInitialData())
     
 def call_diff(file_A, expression_A, file_B, expression_B):
     global to_dict, to_list, diff_list
