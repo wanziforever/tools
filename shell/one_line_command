@@ -1,0 +1,2 @@
+# replace /xxx/ with null in file oss_file_list.txt
+sed 's/^\/.*\///' oss_file_list.txt
