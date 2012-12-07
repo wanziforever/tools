@@ -76,7 +76,7 @@ def open_file(file_name, mode="r"):
 def usage():
     log("***********************************************************\n"
         "script used to do summary on a given pattern on a list of entries\n"
-        "Usage: %s <file_of_list_entries> [ <number_of_record_to_execute> ]\n"
+        "Usage: %s <file_of_list_entries> \n"
         "************************************************************"
         %sys.argv[0])
 
@@ -162,6 +162,9 @@ def call_summary(file_name, reglr, index, summary):
     fp.close()
 
 if __name__ == "__main__":
+    if len(sys.argv) != 2:
+        usage()
+        exit()
     summary = Summary()
     file_name = sys.argv[1]
     call_summary(file_name, captureRe, key_index, summary)
