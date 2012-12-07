@@ -22,8 +22,8 @@ import time
 log_file = "./rmv_program.log"
 # command which used to operate on entries, %s was used to be replace by
 # entry
-command_file = "/usr/local/fountain/utils/del_files"
-#command_file = "/home/denny/work/code/tools/python/test/aa"
+#command_file = "/usr/local/fountain/utils/del_files"
+command_file = "/home/denny/work/code/tools/python/test/aa"
 command_argument = "-h 127.0.0.1 -p 8888 -f"
 # following to regular expression are used to capture valid data from
 # file, the regular expression should contain only one group, and program
@@ -37,8 +37,9 @@ captureRe = re.compile(r"(.+)");
 tmp_suffix = ".tmp"
 
 # define how many entries will be processed this time, means the current
-# running instance just pop a number of entries to be processed.
-how_many_entry_once = 2
+# running instance just pop a number of entries to be processed. the value
+# can be set from the command line, and default to 5
+how_many_entry_once = 5
 
 # sleep interval btween each operation
 sleep_interval = 2 # seconds
@@ -78,8 +79,8 @@ def open_file(file_name, mode="r"):
         
 def usage():
     log("***********************************************************\n"
-        "script used to do some operation on a given list of entries"
-        "Usage: %s <file_of_list_entries>\n"
+        "script used to do some operation on a given list of entries\n"
+        "Usage: %s <file_of_list_entries> [ <number_of_record_to_execute> ]\n"
         "************************************************************"
         %sys.argv[0])
 
@@ -243,13 +244,20 @@ def call_rmv(file_name, expression, command_file, argument):
     saveListsToFile(file_name, entry_dict)
 
 if __name__ == "__main__":
-    if len(sys.argv) != 2:
+    if len(sys.argv) > 3:
         usage()
         exit()
 
+    if len(sys.argv) == 3:
+        if not sys.argv[2].isdigit():
+            log("the second argument should be digit number")
+            exit()
+        how_many_entry_once = int(sys.argv[2])
+            
     if not checkCommandFileExist(command_file):
         log("command file not exist: %s"%command_file)
         exit()
+        
     file_of_list_entries = sys.argv[1]
     
     call_rmv(file_of_list_entries,
