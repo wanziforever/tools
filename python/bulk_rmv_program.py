@@ -22,8 +22,8 @@ import time
 log_file = "./rmv_program.log"
 # command which used to operate on entries, %s was used to be replace by
 # entry
-#command_file = "/usr/local/fountain/utils/del_files"
-command_file = "/home/denny/work/code/tools/python/test/aa"
+command_file = "/usr/local/fountain/utils/del_files"
+#command_file = "/home/denny/work/code/tools/python/test/aa"
 command_argument = "-h 127.0.0.1 -p 8888 -f"
 # following to regular expression are used to capture valid data from
 # file, the regular expression should contain only one group, and program
@@ -40,9 +40,8 @@ tmp_suffix = ".tmp"
 # running instance just pop a number of entries to be processed.
 how_many_entry_once = 2
 
-#todo_list = []
-#fail_list = []
-#complete_list = []
+# sleep interval btween each operation
+sleep_interval = 2 # seconds
 
 entry_dict = { "TODO":[], "FAIL":[], "COMPLETE":[] }
 
@@ -66,7 +65,7 @@ def logFile(text):
     global log_file
     ISOTIMEFORMAT='%Y-%m-%d %X'
     current_time = time.strftime( ISOTIMEFORMAT, time.localtime() )
-    os.system("echo \"%s | %s\" >> %s"%(current_time, text, log_file))
+    os.system("echo \"%s\n%s\" >> %s"%(current_time, text, log_file))
 
 def open_file(file_name, mode="r"):
     """ open file, return None if fail, capture the system exception,
@@ -190,12 +189,13 @@ def executeCMD(cmd):
 def commandOnEntries(command, edict):
     """ operate the command on each entry, only operate on a number of
     entries on top, and put it behind with commented out """
-    global how_many_entry_once, log_file
+    global how_many_entry_once, log_file, sleep_interval
     count = fail_count = succ_count = 0
     todoList = edict["TODO"]
     compList = edict["COMPLETE"]
     failList = edict["FAIL"]
     while (count < how_many_entry_once) and (len(todoList) != 0):
+        time.sleep(sleep_interval)
         entry = todoList.pop(0) # pop from the first item
         full_command = command + " " + entry.getValidData()
         log("processing [ " + full_command + " ]")
@@ -247,14 +247,13 @@ if __name__ == "__main__":
         usage()
         exit()
 
-    #if not checkCommandFileExist(command_file):
-    #    log("command file not exist: %s"%command_file)
-    #    exit()
+    if not checkCommandFileExist(command_file):
+        log("command file not exist: %s"%command_file)
+        exit()
     file_of_list_entries = sys.argv[1]
     
     call_rmv(file_of_list_entries,
              captureRe,
              command_file,
              command_argument)
-
 

@@ -1,2 +1,5 @@
 # replace /xxx/ with null in file oss_file_list.txt
 sed 's/^\/.*\///' oss_file_list.txt
+
+# show the first colum with uniq value
+./show_files | awk 'NR>7 {print $1}' | uniq > dfs_file_list.txt
