@@ -100,7 +100,7 @@ def isBlank(line):
 
 def isIgnored(line):
     """ ignore the blank line and comment line """
-    return isCommented(line) and isBlank(line)
+    return isCommented(line) or isBlank(line)
 
 def validateData(record, expression):
     """ the record should be in a given valid format, which can satisfy
