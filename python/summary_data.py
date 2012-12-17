@@ -13,7 +13,8 @@ import re
 # will only capture the first captured group.
 #captureRe = re.compile(r"\/\w+\/(\w+)"); # capture digit part of /media/12345345
 #captureRe = re.compile(r"(.+)");  # capture whole line
-captureRe = re.compile(r"(\/\w+\/\w+\s*\d+).*")
+#captureRe = re.compile(r"(\/\w+\/\w+\s*\d+).*")
+captureRe = re.compile(r"(\/\w+\/\w+\s*\d+)...")
 
 # group index for regular expression match, the data for this index is the
 # considered as the key, 0 means the first group
