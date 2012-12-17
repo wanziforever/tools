@@ -1,0 +1,33 @@
+#!/usr/bin/expect
+
+set loadServer "10.0.64.18"
+set userName "root"
+set password "root"
+
+############ target files ################
+set loadPath "/control/ngb4.2/Compile/package"
+dict set filesToLoad MDE "$loadPath/MDS/MDE/HITV_MDE.tar"
+dict set filesToLoad MDC "$loadPath/MDS/MDC/HITV_MDC.tar"
+dict set filesToLoad MASTER "$loadPath/ShineFS/Master/HITV_Master.tar"
+dict set filesToLoad SLAVE "$loadPath/ShineFS/Slave/HITV_Slave.tar"
+############  END  #######################
+
+set localPath "."
+set PROMPT ".*#$"
+
+proc scpFileToLocal {url pass} {
+    global PROMPT localPath
+    puts "/usr/bin/scp $url $localPath"
+    eval spawn -noecho "/usr/bin/scp $url $localPath"
+    set timeout 100
+    expect "assword:"
+    send "$pass\r"
+    expect -re $PROMPT
+}
+
+## main start ##
+dict for {pkg path} $filesToLoad {
+    set url "$userName@$loadServer:$path"
+    scpFileToLocal $url $password
+
+}
