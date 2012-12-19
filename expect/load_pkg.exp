@@ -1,5 +1,8 @@
 #!/usr/bin/expect
 
+# disable the spawn output
+log_user 0
+
 set loadServer "10.0.64.18"
 set userName "root"
 set password "root"
@@ -10,24 +13,81 @@ dict set filesToLoad MDE "$loadPath/MDS/MDE/HITV_MDE.tar"
 dict set filesToLoad MDC "$loadPath/MDS/MDC/HITV_MDC.tar"
 dict set filesToLoad MASTER "$loadPath/ShineFS/Master/HITV_Master.tar"
 dict set filesToLoad SLAVE "$loadPath/ShineFS/Slave/HITV_Slave.tar"
+# the ALLlib is required, but it may not in the same place with above
+# package, you need to get it from somewhere by yourself, or put it on
+# the same server, and provide the path of the package below
+# dict set filesToLoad ALLlib "$loadPath/HITV_ALLlib/HITV_ALLlib.tar"
 ############  END  #######################
 
 set localPath "."
 set PROMPT ".*#$"
 
-proc scpFileToLocal {url pass} {
-    global PROMPT localPath
-    puts "/usr/bin/scp $url $localPath"
-    eval spawn -noecho "/usr/bin/scp $url $localPath"
+# scp the remote package file to local
+proc scpFileToLocal {url pass local} {
+    global PROMPT 
+    puts "copying from $url to $local"
+    eval spawn -noecho "/usr/bin/scp $url $local"
     set timeout 100
     expect "assword:"
     send "$pass\r"
     expect -re $PROMPT
 }
 
-## main start ##
-dict for {pkg path} $filesToLoad {
-    set url "$userName@$loadServer:$path"
-    scpFileToLocal $url $password
+# untar the target package tar file
+proc untarPkg {pkg} {
+    global PROMPT
+    puts "extract $pkg package"
+    eval spawn -noecho "tar xvf $pkg"
+    expect -re $PROMPT
+}
 
+# check whether the targe file is exist
+proc checkFileExist {pathName} {
+    return [file exist $pathName]
+}
+
+# backup file by copy it with another name
+proc backupFile {orig target} {
+    file copy -force $orig $target
+}
+
+# go to package directory, and execute the script files located
+# in the package directory, the script should be a shell script
+proc executeInstallationScript {pkgDir} {
+    # better to go to the directory, and execute the shell script
+    # since the script may be take use of the current directory
+    puts "go to $pkgDir"
+    cd $pkgDir
+    set scripts [glob *.sh]
+    foreach script $scripts {
+        puts "executing $script"
+        puts [ exec ./$script ]
+    } 
+}
+
+## main start ##
+
+set pkgList {}
+# start to load package to local
+dict for {pkg path} $filesToLoad {
+    set fileName [file tail $path]
+    lappend pkgList $fileName
+    if {[ checkFileExist "$localPath/$fileName" ] == 1} {
+        puts "$fileName exist, copy it to $fileName.bak"
+        backupFile $localPath/$fileName $localPath/$fileName.bak
+    }
+    set url "$userName@$loadServer:$path"
+    scpFileToLocal $url $password $localPath
+}
+
+# start to untar the received package
+foreach pkg $pkgList {
+    untarPkg $localPath/$pkg
+}
+
+# execute the shell scripts for each package
+set curdir [pwd]
+foreach pkg $pkgList {
+    set pkgDir [ file rootname $pkg ]
+    executeInstallationScript $curdir/$pkgDir
 }
