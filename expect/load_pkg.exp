@@ -1,5 +1,15 @@
 #!/usr/bin/expect
 
+# scripts used for auto installation for ShineFS application, and
+# should be run by root, since there are some root profile modification
+# work at last of the procedure
+
+# the tool will transfer the package files from remote server to local,
+# and extract the package files to its directories; the tool will also
+# add some shortcut to hitv and root profiles
+
+# add any argument for the command will generate the shortcut to profile
+
 # disable the spawn output
 log_user 0
 
@@ -65,10 +75,72 @@ proc executeInstallationScript {pkgDir} {
     } 
 }
 
+# append some alias utils to profile
+proc addShortcutToProfile { profilePath content} {
+    if {[catch {set profile [open $profilePath a]} errMsg]} {
+        puts "fail to open the profile for $profilePath: $errMsg"
+        return -1
+    }
+    puts $profile $content
+    close $profile
+}
+
+# add some shortcut to hitv and root profile
+proc shortcutProfiles {} {
+    puts "add some shortcut to hitv and root profile"
+    # add some shortcuts to hitv profile, hitv has default to csh
+    set hitvHomeDir "/usr/local/fountain/hitv"
+    set hitvShortcuts "\n\
+setenv LOG \"/var/log/hitv\"\n\
+setenv UTILS \"/usr/local/fountain/utils\"\n\
+setenv BIN \"/usr/local/fountain/bin\"\n\
+setenv LIB \"/usr/local/lib\"\n\
+\n\
+alias log \"cd \$LOG\"\n\
+alias utils \"cd \$UTILS\"\n\
+alias bin \"cd \$BIN\"\n\
+alias lib \"cd \$LIB\"\n\
+alias tailde \"tail -f \$LOG/mde.log\"\n\
+alias taildc \"tail -f \$LOG/mdc.log\"\n\
+alias tailpe \"tail -f \$LOG/mpe.log\"\n\
+"
+
+    if {[ checkFileExist $hitvHomeDir/.cshrc ] == 1} {
+        addShortcutToProfile $hitvHomeDir/.cshrc $hitvShortcuts
+    }
+
+    # add some shortcuts to root profile, root has default to bash
+    set rootHomeDir "/root"
+    set rootShortcuts "\n\
+export LOG=\"/var/log/hitv\"\n\
+export UTILS=\"/usr/local/fountain/utils\"\n\
+export BIN=\"/usr/local/fountain/bin\"\n\
+export LIB=\"/usr/local/lib\"\n\
+\n\
+alias log=\"cd \$LOG\"\n\
+alias utils=\"cd \$UTILS\"\n\
+alias bin=\"cd \$BIN\"\n\
+alias lib=\"cd \$LIB\"\n\
+alias tailde=\"tail -f \$LOG/mde.log\"\n\
+alias taildc=\"tail -f \$LOG/mdc.log\"\n\
+alias tailpe=\"tail -f \$LOG/mpe.log\"\n\
+"
+
+    if {[ checkFileExist $rootHomeDir/.bashrc ] == 1} {
+        addShortcutToProfile $rootHomeDir/.bashrc $rootShortcuts
+    }
+}
+
 ## main start ##
+
+if { $argc > 0 } {
+    shortcutProfiles
+    return
+}
 
 set pkgList {}
 # start to load package to local
+
 dict for {pkg path} $filesToLoad {
     set fileName [file tail $path]
     lappend pkgList $fileName
@@ -91,3 +163,4 @@ foreach pkg $pkgList {
     set pkgDir [ file rootname $pkg ]
     executeInstallationScript $curdir/$pkgDir
 }
+
