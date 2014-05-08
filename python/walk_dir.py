@@ -6,6 +6,7 @@ import os
 import re
 
 def match_file(path):
+    match_re = re.compile(s'')
     d = os.path.dirname(path)
     f = os.path.basename(path)
     #--------------------------------------------------
