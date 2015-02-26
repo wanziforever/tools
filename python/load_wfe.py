@@ -1,4 +1,7 @@
 #!/usr/bin/env python
+
+# note: only for hisense NGB project
+
 import subprocess
 
 path_of_loadSim = "./wfesim"

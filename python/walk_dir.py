@@ -5,14 +5,17 @@ import sys
 import os
 import re
 
+def do_match(path):
+    #--------------------------------------------------
+    # some work for match file for special requirement
+    #--------------------------------------------------
+    return True
+
 def match_file(path):
     match_re = re.compile(s'')
     d = os.path.dirname(path)
     f = os.path.basename(path)
-    #--------------------------------------------------
-    # some work for match file for special requirement
-    #--------------------------------------------------
-    if os.path.islink(path):
+    if do_match(path):
         return True
     return False
 

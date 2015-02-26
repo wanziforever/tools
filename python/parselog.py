@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# NOTE: only support one buffer read thread
+# NOTE: only support one buffer read thread, only used for hisense NGB project
 
 import sys
 import re
