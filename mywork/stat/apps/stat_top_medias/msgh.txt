@@ -1,0 +1,110 @@
+Qinfo: name: PlayerStartupCalcMgr, send_pos: 2, recv_pos: 2, occupied_flag: 1, size:0
+Qinfo: name: PlayerStartupGrabberMgr, send_pos: 2, recv_pos: 2, occupied_flag: 1, size:0
+Qinfo: name: PlayerStartupCalc0, send_pos: 1, recv_pos: 1, occupied_flag: 1, size:0
+Qinfo: name: PlayerStartupGrabber0, send_pos: -1, recv_pos: -1, occupied_flag: 1, size:0
+Qinfo: name: , send_pos: -1, recv_pos: -1, occupied_flag: -1, size:0
+Qinfo: name: , send_pos: -1, recv_pos: -1, occupied_flag: -1, size:0
+Qinfo: name: , send_pos: -1, recv_pos: -1, occupied_flag: -1, size:0
+Qinfo: name: , send_pos: -1, recv_pos: -1, occupied_flag: -1, size:0
+Qinfo: name: , send_pos: -1, recv_pos: -1, occupied_flag: -1, size:0
+Qinfo: name: , send_pos: -1, recv_pos: -1, occupied_flag: -1, size:0
+current queue pos is 4
+Qinfo: name: PlayerStartupCalcMgr, send_pos: 2, recv_pos: 2, occupied_flag: 1, size:0
+Qinfo: name: PlayerStartupGrabberMgr, send_pos: 2, recv_pos: 2, occupied_flag: 1, size:0
+Qinfo: name: PlayerStartupCalc0, send_pos: 1, recv_pos: 1, occupied_flag: 1, size:0
+Qinfo: name: PlayerStartupGrabber0, send_pos: -1, recv_pos: -1, occupied_flag: 1, size:0
+Qinfo: name: , send_pos: -1, recv_pos: -1, occupied_flag: -1, size:0
+Qinfo: name: , send_pos: -1, recv_pos: -1, occupied_flag: -1, size:0
+Qinfo: name: , send_pos: -1, recv_pos: -1, occupied_flag: -1, size:0
+Qinfo: name: , send_pos: -1, recv_pos: -1, occupied_flag: -1, size:0
+Qinfo: name: , send_pos: -1, recv_pos: -1, occupied_flag: -1, size:0
+Qinfo: name: , send_pos: -1, recv_pos: -1, occupied_flag: -1, size:0
+current queue pos is 4
+Qinfo: name: PlayerStartupCalcMgr, send_pos: 2, recv_pos: 2, occupied_flag: 1, size:0
+Qinfo: name: PlayerStartupGrabberMgr, send_pos: 2, recv_pos: 2, occupied_flag: 1, size:0
+Qinfo: name: PlayerStartupCalc0, send_pos: 1, recv_pos: 1, occupied_flag: 1, size:0
+Qinfo: name: PlayerStartupGrabber0, send_pos: -1, recv_pos: -1, occupied_flag: 1, size:0
+Qinfo: name: , send_pos: -1, recv_pos: -1, occupied_flag: -1, size:0
+Qinfo: name: , send_pos: -1, recv_pos: -1, occupied_flag: -1, size:0
+Qinfo: name: , send_pos: -1, recv_pos: -1, occupied_flag: -1, size:0
+Qinfo: name: , send_pos: -1, recv_pos: -1, occupied_flag: -1, size:0
+Qinfo: name: , send_pos: -1, recv_pos: -1, occupied_flag: -1, size:0
+Qinfo: name: , send_pos: -1, recv_pos: -1, occupied_flag: -1, size:0
+current queue pos is 4
+Qinfo: name: PlayerStartupCalcMgr, send_pos: 2, recv_pos: 2, occupied_flag: 1, size:0
+Qinfo: name: PlayerStartupGrabberMgr, send_pos: 2, recv_pos: 2, occupied_flag: 1, size:0
+Qinfo: name: PlayerStartupCalc0, send_pos: 1, recv_pos: 1, occupied_flag: 1, size:0
+Qinfo: name: PlayerStartupGrabber0, send_pos: -1, recv_pos: -1, occupied_flag: 1, size:0
+Qinfo: name: , send_pos: -1, recv_pos: -1, occupied_flag: -1, size:0
+Qinfo: name: , send_pos: -1, recv_pos: -1, occupied_flag: -1, size:0
+Qinfo: name: , send_pos: -1, recv_pos: -1, occupied_flag: -1, size:0
+Qinfo: name: , send_pos: -1, recv_pos: -1, occupied_flag: -1, size:0
+Qinfo: name: , send_pos: -1, recv_pos: -1, occupied_flag: -1, size:0
+Qinfo: name: , send_pos: -1, recv_pos: -1, occupied_flag: -1, size:0
+current queue pos is 4
+Qinfo: name: PlayerStartupCalcMgr, send_pos: 2, recv_pos: 2, occupied_flag: 1, size:0
+Qinfo: name: PlayerStartupGrabberMgr, send_pos: 2, recv_pos: 2, occupied_flag: 1, size:0
+Qinfo: name: PlayerStartupCalc0, send_pos: 1, recv_pos: 1, occupied_flag: 1, size:0
+Qinfo: name: PlayerStartupGrabber0, send_pos: -1, recv_pos: -1, occupied_flag: 1, size:0
+Qinfo: name: , send_pos: -1, recv_pos: -1, occupied_flag: -1, size:0
+Qinfo: name: , send_pos: -1, recv_pos: -1, occupied_flag: -1, size:0
+Qinfo: name: , send_pos: -1, recv_pos: -1, occupied_flag: -1, size:0
+Qinfo: name: , send_pos: -1, recv_pos: -1, occupied_flag: -1, size:0
+Qinfo: name: , send_pos: -1, recv_pos: -1, occupied_flag: -1, size:0
+Qinfo: name: , send_pos: -1, recv_pos: -1, occupied_flag: -1, size:0
+current queue pos is 4
+Qinfo: name: PlayerStartupCalcMgr, send_pos: 2, recv_pos: 2, occupied_flag: 1, size:0
+Qinfo: name: PlayerStartupGrabberMgr, send_pos: 2, recv_pos: 2, occupied_flag: 1, size:0
+Qinfo: name: PlayerStartupCalc0, send_pos: 1, recv_pos: 1, occupied_flag: 1, size:0
+Qinfo: name: PlayerStartupGrabber0, send_pos: -1, recv_pos: -1, occupied_flag: 1, size:0
+Qinfo: name: , send_pos: -1, recv_pos: -1, occupied_flag: -1, size:0
+Qinfo: name: , send_pos: -1, recv_pos: -1, occupied_flag: -1, size:0
+Qinfo: name: , send_pos: -1, recv_pos: -1, occupied_flag: -1, size:0
+Qinfo: name: , send_pos: -1, recv_pos: -1, occupied_flag: -1, size:0
+Qinfo: name: , send_pos: -1, recv_pos: -1, occupied_flag: -1, size:0
+Qinfo: name: , send_pos: -1, recv_pos: -1, occupied_flag: -1, size:0
+current queue pos is 4
+Qinfo: name: PlayerStartupCalcMgr, send_pos: 2, recv_pos: 2, occupied_flag: 1, size:0
+Qinfo: name: PlayerStartupGrabberMgr, send_pos: 2, recv_pos: 2, occupied_flag: 1, size:0
+Qinfo: name: PlayerStartupCalc0, send_pos: 1, recv_pos: 1, occupied_flag: 1, size:0
+Qinfo: name: PlayerStartupGrabber0, send_pos: -1, recv_pos: -1, occupied_flag: 1, size:0
+Qinfo: name: , send_pos: -1, recv_pos: -1, occupied_flag: -1, size:0
+Qinfo: name: , send_pos: -1, recv_pos: -1, occupied_flag: -1, size:0
+Qinfo: name: , send_pos: -1, recv_pos: -1, occupied_flag: -1, size:0
+Qinfo: name: , send_pos: -1, recv_pos: -1, occupied_flag: -1, size:0
+Qinfo: name: , send_pos: -1, recv_pos: -1, occupied_flag: -1, size:0
+Qinfo: name: , send_pos: -1, recv_pos: -1, occupied_flag: -1, size:0
+current queue pos is 4
+Qinfo: name: PlayerStartupCalcMgr, send_pos: 2, recv_pos: 2, occupied_flag: 1, size:0
+Qinfo: name: PlayerStartupGrabberMgr, send_pos: 2, recv_pos: 2, occupied_flag: 1, size:0
+Qinfo: name: PlayerStartupCalc0, send_pos: 1, recv_pos: 1, occupied_flag: 1, size:0
+Qinfo: name: PlayerStartupGrabber0, send_pos: -1, recv_pos: -1, occupied_flag: 1, size:0
+Qinfo: name: , send_pos: -1, recv_pos: -1, occupied_flag: -1, size:0
+Qinfo: name: , send_pos: -1, recv_pos: -1, occupied_flag: -1, size:0
+Qinfo: name: , send_pos: -1, recv_pos: -1, occupied_flag: -1, size:0
+Qinfo: name: , send_pos: -1, recv_pos: -1, occupied_flag: -1, size:0
+Qinfo: name: , send_pos: -1, recv_pos: -1, occupied_flag: -1, size:0
+Qinfo: name: , send_pos: -1, recv_pos: -1, occupied_flag: -1, size:0
+current queue pos is 4
+Qinfo: name: PlayerStartupCalcMgr, send_pos: 2, recv_pos: 2, occupied_flag: 1, size:0
+Qinfo: name: PlayerStartupGrabberMgr, send_pos: 2, recv_pos: 2, occupied_flag: 1, size:0
+Qinfo: name: PlayerStartupCalc0, send_pos: 1, recv_pos: 1, occupied_flag: 1, size:0
+Qinfo: name: PlayerStartupGrabber0, send_pos: -1, recv_pos: -1, occupied_flag: 1, size:0
+Qinfo: name: , send_pos: -1, recv_pos: -1, occupied_flag: -1, size:0
+Qinfo: name: , send_pos: -1, recv_pos: -1, occupied_flag: -1, size:0
+Qinfo: name: , send_pos: -1, recv_pos: -1, occupied_flag: -1, size:0
+Qinfo: name: , send_pos: -1, recv_pos: -1, occupied_flag: -1, size:0
+Qinfo: name: , send_pos: -1, recv_pos: -1, occupied_flag: -1, size:0
+Qinfo: name: , send_pos: -1, recv_pos: -1, occupied_flag: -1, size:0
+current queue pos is 4
+Qinfo: name: PlayerStartupCalcMgr, send_pos: 2, recv_pos: 2, occupied_flag: 1, size:0
+Qinfo: name: PlayerStartupGrabberMgr, send_pos: 2, recv_pos: 2, occupied_flag: 1, size:0
+Qinfo: name: PlayerStartupCalc0, send_pos: 1, recv_pos: 1, occupied_flag: 1, size:0
+Qinfo: name: PlayerStartupGrabber0, send_pos: -1, recv_pos: -1, occupied_flag: 1, size:0
+Qinfo: name: , send_pos: -1, recv_pos: -1, occupied_flag: -1, size:0
+Qinfo: name: , send_pos: -1, recv_pos: -1, occupied_flag: -1, size:0
+Qinfo: name: , send_pos: -1, recv_pos: -1, occupied_flag: -1, size:0
+Qinfo: name: , send_pos: -1, recv_pos: -1, occupied_flag: -1, size:0
+Qinfo: name: , send_pos: -1, recv_pos: -1, occupied_flag: -1, size:0
+Qinfo: name: , send_pos: -1, recv_pos: -1, occupied_flag: -1, size:0
+current queue pos is 4

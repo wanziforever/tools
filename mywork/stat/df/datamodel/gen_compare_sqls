@@ -1,0 +1,340 @@
+#!/usr/bin/env python
+
+'''
+compare datamodel_former datamodel haha 
+1. drop table is ok!
+2. add  table  is ok!
+3. alter table!
+    3.1  add fileds is ok!
+    3.2  delete fileds is ok!
+    3.3  alter fileds
+           3.3.1  change type   String  --- > Integer   if is 123 , result 123; if is 123hhh4, result  123; if is llllkkkk ,result 0
+                                             Integer ---> String     ok! not change!
+           3.3.2  add default     update tablename set field='default' where field is null;
+                      drop default   dont deal with exists datas
+           3.3.2  others  is  ok !
+'''
+
+import sys
+from xml.dom import minidom
+from xml.dom.minidom import getDOMImplementation, Node
+
+FIELD_TYPES = ("String", "Integer", "Boolean", "BigInteger",
+               "Text", "Float", "SmallInteger", "DateTime")
+
+class Field(object):
+    def __init__(self, name, type):
+        self.name = name
+        if type not in FIELD_TYPES:
+            print "invalid type provided %s"%type
+            raise ValueError
+        self.type = type
+        self.length = 0
+        self.isIndex = False
+        self.nullable = True
+        self.hasDefault = False
+        self.default = ""   
+        self.collation = ""
+
+    def __getattr__(self, key):
+        """
+        only type attribute will get in this function
+        """
+        if key == "type":
+            if self.base_type == "String":
+                if self.hasCollation:
+                    s = "String(%d, collation=\'%s\')"%(self.length, self.collation)
+                else:
+                    s = "String(%d)"%(self.length)
+                return s
+            else:
+                return self.type
+        else:
+            print "invalid key ", key
+            raise AttributeError
+
+    def setType(self, type):
+        self.type = type
+
+    def setLength(self, len):
+        self.length = len
+
+    def setIndex(self):
+        self.isIndex = True
+        self.nullable = False
+
+    def setNullable(self):
+        self.nullable = False
+
+    def setDefault(self, value):
+        if self.type == "String":
+            self.default = "'%s'"%value
+        else:
+            self.default = value
+        self.hasDefault = True
+
+    def setCollation(self, value):
+        self.collation = value
+        self.hasCollation = True
+
+    def getName(self):
+        return self.name
+
+    def getAllAtrributes(self):
+        return self.name, self.type, self.nullable, self.isIndex, self.default, self.length, self.hasDefault
+    
+def getFields(table):
+    msgs = {'String': 'VARCHAR',
+              'BigInteger':'BIGINT',
+               'Integer': 'INT',
+               'DateTime': 'DATETIME',
+               'Float': 'FLOAT',
+               'SmallInteger': 'SMALLINT',
+               'Text': 'TEXT'}
+    fields = []
+    for field in table.childNodes:
+        if field.nodeType == Node.TEXT_NODE:
+            continue
+        name =  field.getAttribute("name")
+        type = field.getAttribute("type")
+        f = Field(name, type)
+        
+        if type == "String":
+            len = field.getAttribute("length")
+            f.setLength(len)
+        f.setType(msgs.get(type))
+
+        if field.getAttribute("index"):
+            isIndex = field.getAttribute("index")
+            if isIndex == "True":
+                f.setIndex()
+
+        if field.hasAttribute("nullable"):
+            nullable = field.getAttribute("nullable")
+            if nullable == "False":
+                f.setNullable()
+
+        if field.getAttribute("default"):
+            default = field.getAttribute("default")
+            f.setDefault(default)
+
+        if field.getAttribute("collation"):
+            collation = field.getAttribute("collation")
+            f.setCollation(collation)
+
+        fields.append(f)
+    return fields
+
+'-------------------------------- drop tables -------------------------------------'
+def dropTableSqls(name):
+    str = 'drop table if exists ' + name + ';'
+    writeSqls.append(str)
+    writeSqls.append('\n')
+
+def dropTables(former):
+    if len(former) > 0:
+        writeSqls.append("# Tables need ---  drop  ---!!\n")
+    for name in former:
+        dropTableSqls(name)
+    if len(former) > 0:
+        writeSqls.append("\n\n")
+
+'-------------------------------- add tables ----------------------------------------'
+def addTableSqls(dict_table2):
+    tableName = dict_table2.getAttribute("name")
+    str = 'CREATE TABLE ' + tableName + '(\n'
+    str = str + '    id BIGINT NOT NULL AUTO_INCREMENT, \n'
+    str = str + '    customer_id BIGINT, \n'
+    str = str + '    created_time INTEGER NOT NULL, \n'
+    str = str + '    modified_time INTEGER NOT NULL, \n' 
+    str = str + '    deleted SMALLINT NOT NULL, \n'
+    str1 = 'CREATE INDEX ix_' + tableName + '_customer_id ON ' + tableName + ' (customer_id);\n'
+    str1 = str1 + 'CREATE INDEX ix_' + tableName + '_deleted ON ' + tableName + ' (deleted);\n'
+    str1 = str1 + 'CREATE INDEX ix_' + tableName + '_modified_time ON ' + tableName + ' (modified_time);\n'
+    for field in getFields(dict_table2):
+        str = str + '    '        
+        name, type, nullable, index, default, length, hasDefault = field.getAllAtrributes()
+        str = str +name + ' '
+        if type == 'VARCHAR':
+            str = str + 'VARCHAR(' + length + ')'
+        else:
+            print str,type
+            str = str + type
+        if nullable == False:
+            str = str + ' NOT NULL'
+        if hasDefault:
+            str = str + ' default ' + default
+        str = str + ',\n' 
+        if index == True:
+            str1 = str1 + 'CREATE INDEX ix_' + tableName + '_' + name + ' ON ' + tableName + ' (' + name + ');\n'
+    str = str +     '    PRIMARY KEY (id) \n )ENGINE=InnoDB CHARSET=utf8;\n'
+    writeSqls.append(str)
+    writeSqls.append('\n')
+    writeSqls.append(str1)
+    writeSqls.append('\n')
+
+def addTables(later, doc2):
+    if len(later) > 0:
+        writeSqls.append("# Tables need  ---  add  ---  !!\n")
+    dict_tables2 = doc2.getElementsByTagName("table")
+    for dict_table2 in dict_tables2:
+        if dict_table2.getAttribute("name") in later:
+            addTableSqls(dict_table2)
+    if len(later) > 0:
+        writeSqls.append("\n")
+
+'-------------------------------- alter tables------------------------------------------------'
+def deleteFiledSqls(tableName, fieldName):
+    str = 'alter table ' + tableName + ' drop column ' + fieldName + ';\n'
+    writeSqls.append(str)
+
+def addFieldSqls(dict_table2, k):
+    tableName = dict_table2.getAttribute("name")
+    for field in getFields(dict_table2):
+        if field.getName() == k:
+            name, type, nullable, index, default, length, hasDefault = field.getAllAtrributes()
+            if type == "VARCHAR":
+                str = 'alter table ' + tableName + ' add ' + k + ' VARCHAR(' + length + ')'
+            else:
+                str = 'alter table ' + tableName + ' add ' + k + ' ' + type
+            if nullable == False:
+                str = str + ' not null' 
+            str = str + ';\n'
+            writeSqls.append(str)
+            if hasDefault:
+                str1 = 'alter table ' + tableName + ' alter ' + k + ' set default ' + default +';\n'
+                writeSqls.append(str1)
+            if index == True:
+                str2 = 'CREATE INDEX ix_' + tableName + '_' + k + ' ON ' + tableName + ' (' + k + ');\n'
+                writeSqls.append(str2)   
+            break
+
+def alterFildAtrrSqls(dict_table1, dict_table2, k):
+    tableName = dict_table2.getAttribute("name")
+    for field1 in getFields(dict_table1):
+        if field1.getName() == k:
+            name, type1, nullable1, index1, default1, length1, hasDefault1 = field1.getAllAtrributes()
+            break
+
+    for field2 in getFields(dict_table2):
+        if field2.getName() == k:
+            name2, type2, nullable2, index2, default2, length2, hasDefault2 = field2.getAllAtrributes()
+            break
+
+    str = 'alter table ' + tableName + ' modify ' + k
+    str1= 'alter table '+ tableName +' alter ' + k
+    if type2 == "VARCHAR":
+        str = str + ' VARCHAR(' + length2 + ')'
+    else:
+        str = str + ' ' + type2
+    if nullable2 == True:
+        str = str +' null'
+    if nullable2 == False:
+        str = str + ' not null'
+    if hasDefault2:
+        str1 = str1 +' set default ' + default2 + ';\n'
+        str4 = 'update ' + tableName + ' set ' + k + '=' + default2 + ' where ' + k + ' is null;'
+    elif hasDefault2 == False and hasDefault1:
+        str1 = str1 + ' drop default;\n'
+    str = str + ';\n'
+    writeSqls.append(str)
+    if hasDefault2  or hasDefault1:
+        writeSqls.append(str1)
+    if hasDefault2:
+        writeSqls.append(str4)
+    if index1 != True and index2 == True:
+        str2 = 'CREATE INDEX ix_' + tableName + '_' + k + ' ON ' + tableName + ' (' + k + ');\n'
+        writeSqls.append(str2)
+    if index1 ==True and index2 != True:
+        str2 = 'DROP INDEX ix_' + tableName + '_' + k + ' ON ' + tableName +';\n'
+        writeSqls.append(str2)
+
+def judgeSame(f1, f2):
+    name1, type1, nullable1, index1, default1, length1, hasDefault1 = f1.getAllAtrributes()
+    name2, type2, nullable2, index2, default2, length2, hasDefault2 = f2.getAllAtrributes()
+    return type1 == type2 and length1 == length2 and nullable1 == nullable2 and name1 == name2 and index1 == index2 and default1 == default2 and hasDefault1 == hasDefault2
+
+def sameNameTableCompare(dict_table1, dict_table2):
+    e = dict_table1.getAttribute("name")
+    table1List = []
+    sameList = []
+    table2List = []
+    for f1 in getFields(dict_table1):
+        table1List.append(f1.getName())
+        for f2 in getFields(dict_table2):
+            if judgeSame(f1, f2):
+                sameList.append(f1.getName())
+    for f2 in getFields(dict_table2):
+        table2List.append(f2.getName())
+    former1 = set(table1List) ^ set(sameList)
+    later1 = set(table2List) ^ set(sameList)
+    if len(former1) == 0 and len(later1) == 0:
+        print e.upper() + ' table complete same !!'
+    elif len(former1) > 0 or len(later1) > 0:
+        writeSqls.append("# " + e.upper() + " tables need ---  update  ---!!\n\n")
+        '------------------------------ alter fields ----------------------------------'
+        alters = former1 & later1
+        if len(alters) > 0:
+            writeSqls.append("# fileds need ---  alter  ---!!\n")
+            for k in alters:
+                alterFildAtrrSqls(dict_table1, dict_table2, k)
+        '------------------------------ add fields ------------------------------------'
+        former2 = former1 ^ alters
+        if len(former2) > 0:
+            writeSqls.append("# fileds need ---  delete  ---!!\n")
+            for k in former2:
+                deleteFiledSqls(e, k)
+        '------------------------------ delete fields ----------------------------------'
+        later2 = later1 ^ alters
+        if len(later2) > 0:
+            writeSqls.append("# fileds need ---  add  ---!!\n")
+            for k in later2:
+                addFieldSqls(dict_table2, k)
+            writeSqls.append("\n")
+
+def alterTables(same, doc1, doc2):
+    dict_tables1 = doc1.getElementsByTagName("table")
+    dict_tables2 = doc2.getElementsByTagName("table")
+    for dict_table1 in dict_tables1:
+        if dict_table1.getAttribute("name") in same:
+            for dict_table2 in dict_tables2:
+                if dict_table2.getAttribute("name") == dict_table1.getAttribute("name"):
+                    sameNameTableCompare(dict_table1, dict_table2)
+    
+def getAllTableNames(doc1, doc2):
+    result1 = []
+    result2 = []
+    dict_tables1 = doc1.getElementsByTagName("table")
+    for dict_table1 in dict_tables1:
+        tableName1 = dict_table1.getAttribute("name")
+        result1.append(tableName1)
+    dict_tables2 = doc2.getElementsByTagName("table")
+    for dict_table2 in dict_tables2:
+        tableName2 = dict_table2.getAttribute("name")
+        result2.append(tableName2)
+    return result1, result2
+
+def compareResult(result1, result2):
+    same = set(result1) & set(result2)
+    former = set(result1) ^ same
+    later = set(result2) ^ same
+    return same, former, later
+
+writeSqls = []
+if __name__ == "__main__":
+    print "-----------Generate the table alter SQLs-------------------\n"
+    alter_sql_file='./alter_tables.sql'
+    doc1 = minidom.parse(sys.argv[1])
+    doc2 = minidom.parse(sys.argv[2])
+
+    result1, result2 = getAllTableNames(doc1, doc2)
+    same, former, later = compareResult(result1, result2)
+
+    dropTables(former)
+    addTables(later, doc2)
+    alterTables(same, doc1, doc2)
+
+    f = open('./alter_tables.sql', "w")
+    f.write("".join(writeSqls))
+    f.close()
+    print "\nDone!"  

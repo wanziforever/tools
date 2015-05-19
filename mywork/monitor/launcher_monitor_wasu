@@ -1,0 +1,30 @@
+C  +++ AzureVM 2015-05-10 07:43:05 CRITICAL_ALARM CRITICAL #000022
+    PROBLEM: POSTER_IMAGE_GONE, ALARM_ID: 20000
+    picture of url cannot be loaded, err(picture url is empty)
+    <View> name: 首页, navid: 0, layout: modular-rectangular-f
+    ++<Tile> index: 7, pos: (1278, 200), size: (732, 480)
+    ++++<Facet> title:红包, typecode=1002, id=1369405, pic=
+
+   END OF REPORT #000022++-
+C  +++ AzureVM 2015-05-10 07:44:37 CRITICAL_ALARM CRITICAL #000159
+    PROBLEM: POSTER_IMAGE_GONE, ALARM_ID: 20000
+    picture of url cannot be loaded, err(picture url is empty)
+    <View> name: 首页, navid: 0, layout: modular-rectangular-f
+    ++<Tile> index: 7, pos: (1278, 200), size: (732, 480)
+    ++++<Facet> title:红包, typecode=1002, id=1369405, pic=
+
+   END OF REPORT #000159++-
+H  +++ AzureVM 2015-05-10 07:47:15 HIGH_ALARM HIGH #000195
+    PROBLEM: CATEGORY_HAS_BAD_MEDIAS, ALARM_ID: 201002
+    type: CategoryApiModule, id: 2002,
+    url=http://api.wasuvod.hismarttv.com/category/api/search/2002?start=0&rows=35
+    12st media(月亮的秘密) has no picture load successfully, err((23, 'Failed writing
+    body (0 != 5408)'))
+    
+    location:
+    <View> name: 电影, navid: 15, layout: modular-rectangular-f
+    ++<Tile> index: 1, pos: (180, 200), size: (240, 360)
+    ++++<Facet> title:电影, typecode=1001, id=2002,
+    pic=http://picture.wasuvod.hismarttv.com/images/20150313101504396120.png
+
+   END OF REPORT #000195++-
