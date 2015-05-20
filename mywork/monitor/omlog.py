@@ -23,7 +23,7 @@ seq = 0
 
 def get_seq():
     global seq
-    s = "%06d"%seq
+    s = "%08d"%seq
     seq += 1
     return s
 
@@ -64,8 +64,18 @@ class OMlog(object):
             )
         s = ""
         s += add_indent(begain, indent) + "\n"
+        prefix = ""
+        # add alarm related prefix of OM log, so CRITICAL_ALARM will
+        # have CA prefix, HIGH_ALARM will have HA
         if self.level != "INFO":
-            s = self.level[0] +  s[1:]
+            if self.level.find('_') != -1:
+                for c in self.level.split('_', 1):
+                    prefix += c[0]
+            else:
+                prefix = self.level[0]
+        if len(prefix) > 2:
+            prefix = prefix[0:2]
+        s = prefix + s[len(prefix):]
         t = Template(omstring)
         content = t.render(**self.attributes)
         content = wrap_long_line(content)

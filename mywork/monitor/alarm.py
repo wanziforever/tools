@@ -33,7 +33,7 @@ class Alarm(object):
 
     def report_alarm(self, err_msg):
         om = OMlog('ALARM')
-        om.set_module(self.level_string)
+        om.set_module('ALARM')
         om.add("problem", self.problem)
         om.add("alarmid", self.almid)
         om.add("msg", err_msg)
@@ -49,7 +49,7 @@ class HighAlarm(Alarm):
 
     def report_alarm(self, err_msg):
         om = OMlog('HIGH_ALARM')
-        om.set_module(self.level_string)
+        om.set_module('ALARM')
         om.add("problem", self.problem)
         om.add("alarmid", self.almid)
         om.add("msg", err_msg)
@@ -61,7 +61,7 @@ class CriticalAlarm(Alarm):
 
     def report_alarm(self, err_msg):
         om = OMlog('CRITICAL_ALARM')
-        om.set_module(self.level_string)
+        om.set_module('ALARM')
         om.add("problem", self.problem)
         om.add("alarmid", self.almid)
         om.add("msg", err_msg)
