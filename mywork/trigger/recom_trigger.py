@@ -8,14 +8,16 @@ import time
 recom_refresh_url = '''http://api.wasuvod.hismarttv.com/recom/api/develop/multirecom?start={start}&rows={rows}&outtime={timeout}'''
 start = 0
 end = 0 # rows currently represent end
-timeout = 60
-rows = 10
+timeout = 100
+rows = 40
 
 data_num = 0
 success_num = 0
 exception_num = 0
 
-end_retry_count = 6
+retry_sleep = 3
+
+end_retry_count = 8
 retry_count = 0
 
 def set_delta():
@@ -45,7 +47,7 @@ def init():
     global start, end, timeout, success_num, exception_num
     start = 0
     end = 0
-    timeout = 60
+    timeout = 100
     success_num = 0
     exception_num = 0
 
@@ -81,7 +83,6 @@ def need_retry():
         return True
     retry_count = 0
     return False
-    
 
 def call_trigger():
     global success_num, exception_num, data_num, rows
@@ -106,7 +107,8 @@ def call_trigger():
     no_data_num = int(j['no_data_num'])
     data_num = int(j['data_num'])
     delta = end - start
-    print "send %s request, %s succeed, exception: %s, no_data: %s, total_send=%s, duration=%smsec"\
+    print "send %s request, %s succeed, exception: %s, no_data: %s, "\
+          "total_send=%s, duration=%smsec"\
           %(delta, data_num, exception_num, no_data_num, end, duration)
     if data_num == 0 or exception_num > 0:
         print "erro meet: ", str(j)
@@ -116,12 +118,20 @@ if __name__ == "__main__":
     init()
     start_ts = int(time.time() * 1000)
     set_delta()
+    retry_sleep_time_add = 0
     while (True):
         call_trigger()
         if not need_retry():
             # here the retry means the data returned is 0, need to retry
             # and conform
             set_delta()
+            retry_sleep_time_add = 0
+        else:
+            # retry sleep time need more time very continued retry
+            t = retry_sleep + retry_sleep_time_add
+            print "sleep %s seconds for retry"%t
+            time.sleep(t)
+            retry_sleep_time_add += 4
             
         if is_end():
             end_ts = int(time.time() * 1000)

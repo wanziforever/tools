@@ -412,40 +412,57 @@ def data_initialize():
         om_err_output("no masterViews information in masterViews data, exit now")
         exit(-1)
 
-    l = len(frontj['masterViews'])
-    i = 1
-    j = 1
-    while i <= l: 
-        v = frontj['masterViews'][i-1]
-        column_index = v['index']
-        from_re = v['from_re']
-        merged_column = v
-        recom_columns = recomj['masterViews']
-        if j != column_index:
-            for c in recom_columns:
-                re_column_index = c['index']
-                if re_column_index != j:
-                    continue
-                merged_column = c
-                recom_columns.remove(c)
-                i -= 1
-                break
-        col = parse_column(merged_column)
-        if col is None:
-            return False
+    #l = len(frontj['masterViews'])
+    #i = 1
+    #j = 1
+
+    #while i <= l: 
+    #    v = frontj['masterViews'][i-1]
+    #    column_index = v['index']
+    #    from_re = v['from_re']
+    #    merged_column = v
+    #    recom_columns = recomj['masterViews']
+    #    if j != column_index:
+    #        for c in recom_columns:
+    #            re_column_index = c['index']
+    #            if re_column_index != j:
+    #                continue
+    #            merged_column = c
+    #            recom_columns.remove(c)
+    #            i -= 1
+    #            break
+    #    col = parse_column(merged_column)
+    #    if col is None:
+    #        return False
+    #    if from_re == 1:
+    #        print "fond recom colum", i, v['title']
+    #        col.from_re = True
+    #    settings.master_views.append(col)
+    #    i += 1
+    #    j += 1
+    #
+    #if len(recom_columns) == 0:
+    #    return True
+    #for c in recom_columns:
+    #    col = parse_column(c)
+    #    settings.master_views.append(col)
+
+
+    front_columns = {}
+    recom_columns = {}
+    for c in frontj['masterViews']:
+        front_columns[c['index']] = c
+    for c in recomj['masterViews']:
+        recom_columns[c['index']] = c
+    front_columns.update(recom_columns)
+    
+    for c in sorted([int(i) for i in front_columns.keys()]):
+        d = front_columns[str(c)]
+        from_re = d['from_re']
+        col = parse_column(d)
         if from_re == 1:
             col.from_re = True
         settings.master_views.append(col)
-        i += 1
-        j += 1
-
-    if len(recom_columns) == 0:
-        return True
-    for c in recom_columns:
-        col = parse_column(c)
-        settings.master_views.append(col)
-
-    return True
         
 def handle_argv():
     args = sys.argv[1:]
@@ -514,10 +531,13 @@ def mark_success(alarm_file):
         
 if __name__ == "__main__":
     handle_argv()
+    settings.set_module_name("LAUNCHER_MON3_%s"
+                             %(settings.VENDER))
     if not data_initialize():
         om_err_output("main() fail to initialize data")
 
     set_alarm_configration()
+    
     examine()
     # if there is alarm file generated, it means there are some error
     # need to send mail report
@@ -527,7 +547,7 @@ if __name__ == "__main__":
         mark_success(alarm_file)
     else:
         notify_alarm_by_mail()
-    copy_to_web_location(alarm_file)
+    #copy_to_web_location(alarm_file)
 
     print "Done"
     

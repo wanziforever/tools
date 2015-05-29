@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# # -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 # Copyright (c)  2015 Denny Wang (wangliang8@hisense.com)
 # License: Hisense Cloud
 
@@ -18,6 +18,7 @@ reload(sys)  # Reload does the trick!
 sys.setdefaultencoding('UTF8')
 
 import os
+import re
 import pycurl
 import jinja2
 import StringIO
@@ -26,6 +27,7 @@ import settings
 import time
 import logging
 import logging.config
+import media_desc
 from datetime import datetime, timedelta
 from utils import validate_pic,  dump_pic
 api_mapping = {}
@@ -33,6 +35,59 @@ api_mapping = {}
 
 logging.config.fileConfig('api_module.conf')
 
+rate = 0.6
+
+list_view_height = 360 * rate
+list_view_width = 275 * rate
+list_view_info_height = 80 * rate
+
+media_desc.data_initialize()
+
+def get_second_title(mid, title):
+    ret = media_desc.get_desc_by_title(title.strip())
+    if ret is None:
+        return title
+    return ret
+
+def _gen_medias_html(path, medias):
+    x = 20
+    y = 60
+    count_per_line = 7
+    
+    xcell = 10
+    ycell = 10
+    line = '''<div class="poster" style="top:{top};left:{left};position:absolute;z-index:1;visibility:show;"><a href="{detail_link}"><img src="{pic}" title="{title}" alt="{alt}" style="width:100%; height:100%"></img></a><div class="info"><p class="title">{title}</p><p class="desc">{description}</p></div></div>'''
+    i = 0
+    s = ""
+    while i < len(medias):
+        m = medias[i]
+        picture = m['image_icon_url']
+        iqiyi_re = re.compile(r'qiyipic')
+        if iqiyi_re.search(picture):
+            picture = dump_pic(picture)
+        title = m['title']
+        alt = title
+        ret, msg = validate_pic(picture)
+        if not ret:
+            alt += " (no picture load)"
+
+        yy = (i / count_per_line) * (list_view_height + ycell + list_view_info_height) +  y
+        xx = (i % count_per_line) * (list_view_width + xcell)  + x
+        ma = MediaApiModule(m['id'])
+        # we know the media path is the same level of category
+        detail_link = ma.export_html(path, False)
+        detail_link = os.path.join('../', detail_link)
+        s += line.format(top=yy, left=xx, pic=picture,
+                         title=title,
+                         width=list_view_width,
+                         height=list_view_height,
+                         detail_link=detail_link,
+                         alt=alt,
+                         description = get_second_title(m['id'], title))
+        s += '\n'
+        i += 1
+
+    return s
 
 # all the API verification will support return multiple err code
 class ErrCode():
@@ -69,13 +124,14 @@ class API(object):
 
 class ApiModule(object):
     myinfo_format = "{type}: {id}, url: {url}"
-    def __init__(self, sid):
+    def __init__(self, sid, name=""):
         self.url = ""
         self.params = ""
         self.id = sid
         self.data = ""
         self.typecode = ""
         self.is_valid = False
+        self.name = name
         # set my information but without url here
         self.myinfo = "type: %s, id: %s"%\
                       (self.__class__.__name__, self.id)
@@ -124,6 +180,8 @@ class ApiModule(object):
                 c.perform()
                 self.data = b.getvalue()
                 return True
+            except KeyboardInterrupt:
+                exit(2)
             except Exception, e:
                 err_msg = "{url} canot be accessed, meet error ({err})".\
                           format(url=self.url, err=str(e))
@@ -134,7 +192,7 @@ class ApiModule(object):
         logging.error("cannot access %s"%self.url)
         return False
                 
-    def export_html(self, override=False):
+    def export_html(self, path, override=False):
         return "#"
 
     def verify_basic(self):
@@ -154,10 +212,10 @@ class ApiModule(object):
         return True
 
 class CategoryApiModule(ApiModule):
-    def __init__(self, sid):
-        ApiModule.__init__(self, sid)
+    def __init__(self, sid, name=""):
+        ApiModule.__init__(self, sid, name)
         self.first_page_start =  0
-        self.page_count = 35
+        self.page_count = 105
         self._fill('1001')
         self.MEDIA_DETAIL_ACCESS_DURATION = 3
 
@@ -297,10 +355,46 @@ class CategoryApiModule(ApiModule):
             return False
         
         return True
+
+    def export_html(self, path, override=False):
+        prefix = os.environ.get('file_prefix', '')
+        new_url = "categories/%s%s.html"%(prefix, self.id)
+        fname = os.path.join(path, new_url)
+        if override is False and os.path.exists(fname):
+            logging.debug("export %s, ignored"%fname)
+            return new_url
+        self.retrieve()
+        try:
+            j = json.loads(self.data)
+        except:
+            self.set_err(ErrCode.DATA_INVALID, "export_html() fail to load "
+                         "response data to json")
+            return "#None"
+
+        medias = j['medias']
+        if len(medias) == 0:
+            return new_url
         
+        content = _gen_medias_html(path, medias)
+        
+        templateLoader = jinja2.FileSystemLoader(searchpath="./")
+        templateEnv = jinja2.Environment(loader=templateLoader)
+        template_file = "category.tpl"
+        template = templateEnv.get_template(template_file)
+        output = template.render(content=content,
+                                 width=list_view_width,
+                                 height=list_view_height,
+                                 info_height=list_view_info_height,
+                                 page_title=self.name,
+                                 create_time=str(datetime.now())[:19])
+        fd = open(fname, 'w')
+        fd.write(output)
+        fd.close()
+        return new_url
+
 class MediaApiModule(ApiModule):
-    def __init__(self, sid):
-        ApiModule.__init__(self, sid)
+    def __init__(self, sid, name=""):
+        ApiModule.__init__(self, sid, name)
         self._fill('1002')
 
     def setup_url(self):
@@ -370,9 +464,10 @@ class MediaApiModule(ApiModule):
             return False
         return True
 
-    def export_html(self, override=True):
-        fname = os.path.join(settings.WEB_HOME, "medias/%s.html"%self.id)
-        new_url = "medias/%s.html"%self.id
+    def export_html(self, path, override=True):
+        prefix = os.environ.get('file_prefix', '')
+        new_url = "medias/%s%s.html"%(prefix, self.id)
+        fname = os.path.join(path, new_url)
         if override is False and os.path.exists(fname):
             logging.debug("export %s, ignored"%fname)
             return new_url
@@ -390,7 +485,13 @@ class MediaApiModule(ApiModule):
             return "#None"
         content['title'] = j['title']
         content['num'] = len(j['videos'])
-        content['pic'] = dump_pic(j['image_post_url'])
+        iqiyi_re = re.compile(r'qiyipic')
+        picture = j['image_post_url']
+        m = iqiyi_re.search(picture)
+        if m:
+            content['pic'] = dump_pic(picture)
+        else:
+            content['pic'] = picture
         content['content'] = j['summary']
         content['create_time'] = str(datetime.now())[:19]
         content['actors'] = " | ".join(j['actor'])
@@ -416,8 +517,8 @@ class MediaApiModule(ApiModule):
         return new_url
 
 class TopicApiModule(ApiModule):
-    def __init__(self, sid):
-        ApiModule.__init__(self, sid)
+    def __init__(self, sid, name=""):
+        ApiModule.__init__(self, sid, name)
         self._fill("2005")
         self.MEDIA_DETAIL_ACCESS_DURATION = 3
 
@@ -571,9 +672,99 @@ class TopicApiModule(ApiModule):
         
         return True
 
+    def export_html(self, path, override=True):
+        prefix = os.environ.get('file_prefix', '')
+        new_url = "topics/%s%s.html"%(prefix, self.id)
+        fname = os.path.join(path, new_url)
+        if override is False and os.path.exists(fname):
+            logging.debug("export %s, ignored"%fname)
+            return new_url
+        self.retrieve()
+        try:
+            j = json.loads(self.data)
+        except:
+            self.set_err(ErrCode.DATA_INVALID, "export_html() fail to load "
+                         "response data to json")
+            return "#None"
+
+        medias = j['medias']
+        if len(medias) == 0:
+            return new_url
+        rate = 0.6
+        height = 320 * rate
+        width = 250 * rate
+        content = self._gen_background_html(j['background'])
+        content += self._gen_medias_html(path, medias, width, height)
+        
+        templateLoader = jinja2.FileSystemLoader(searchpath="./")
+        templateEnv = jinja2.Environment(loader=templateLoader)
+        template_file = "topic.tpl"
+        
+        template = templateEnv.get_template(template_file)
+        output = template.render(content=content,
+                                 page_title="专题详情",
+                                 width=width,
+                                 height=height,
+                                 create_time=str(datetime.now())[:19])
+        fd = open(fname, 'w')
+        fd.write(output)
+        fd.close()
+        return new_url
+
+    def _gen_background_html(self, bg_picture):
+        line = '''
+        <div style="top:{top};left:{left};width:{width};height:{height};position:absolute;z-index:0;visibility:show;background-image:url({pic}); background-repeat:no-repeat;background-size:100% 100%"></div>
+        '''
+        x = 20
+        y = 60
+        width = 1080
+        height = 607
+        return line.format(pic=bg_picture, top=y, left=x, width=width, height=height)
+
+    def _gen_medias_html(self, path, medias, width, height):
+        x = 20
+        y = 480
+        count_per_line = 7
+        
+        xcell = 12
+        ycell = 10
+        rate = 0.6
+        line = '''<div class="poster" style="top:{top};left:{left};position:absolute;z-index:1;visibility:show;"><a href="{detail_link}"><img src="{pic}" title="{title}" alt="{alt}" style="width:100%; height:100%"></img></a></div>'''
+        i = 0
+        s = ""
+        while i < len(medias):
+            m = medias[i]
+            picture = m['image_icon_url']
+            iqiyi_re = re.compile(r'qiyipic')
+            if iqiyi_re.search(picture):
+                picture = dump_pic(picture)
+            title = m['title']
+            alt = title
+            ret, msg = validate_pic(picture)
+            if not ret:
+                alt += " (no picture load)"
+                
+            yy = (i / count_per_line) * (height + ycell) + y
+            xx = (i % count_per_line) * (width + xcell) + x + 10
+            ma = MediaApiModule(m['id'])
+            # we know the media path is the same level of category
+            detail_link = ma.export_html(path, False)
+            detail_link = os.path.join('../', detail_link)
+            s += line.format(top=yy, left=xx, pic=picture,
+                             title=title,
+                             width=width*rate,
+                             height=height*rate,
+                             detail_link=detail_link,
+                             alt=alt,
+                             description=get_second_title(m['id'], title))
+            s += '\n'
+            i += 1
+            
+        return s
+
 class RelateApiModule(ApiModule):
-    def __init__(self, sid):
-        ApiModule.__init__(self, sid)
+    def __init__(self, sid, name=""):
+        ApiModule.__init__(self, sid, name)
         self._fill("2007")
 
     def setup_url(self):
@@ -584,8 +775,8 @@ class RelateApiModule(ApiModule):
         return True
 
 class getAllTrades(ApiModule):
-    def __init__(self, sid):
-        ApiModule.__init__(self, sid)
+    def __init__(self, sid, name=""):
+        ApiModule.__init__(self, sid, name)
         self._fill("5002")
 
     def setup_url(self):
@@ -596,8 +787,8 @@ class getAllTrades(ApiModule):
         return True
 
 class ColumViewCategory(ApiModule):
-    def __init__(self, sid):
-        ApiModule.__init__(self, sid)
+    def __init__(self, sid, name=""):
+        ApiModule.__init__(self, sid, name="")
         self._fill("1007")
 
     def setup_url(self):
@@ -608,43 +799,188 @@ class ColumViewCategory(ApiModule):
         return True
     
 class SearchApiModule(ApiModule):
-    def __init__(self, sid):
-        ApiModule.__init__(self, sid)
+    def __init__(self, sid, name=""):
+        ApiModule.__init__(self, sid, name)
         self._fill("2001")
 
     def setup_url(self):
-        url = self.url + "/" + self.id
+        url = self.url
         return url
 
     def verify(self):
         return True
+
+    def export_html(self, path, override=True):
+        prefix = os.environ.get('file_prefix', '')
+        new_url = "functions/%stopsearch.html"%prefix
+        fname = os.path.join(path, new_url)
+        if override is False and os.path.exists(fname):
+            logging.debug("export %s, ignored"%fname)
+            return new_url
+        self.retrieve()
+        try:
+            j = json.loads(self.data)
+        except:
+            self.set_err(ErrCode.DATA_INVALID, "export_html() fail to load "
+                         "response data to json")
+            return "#None"
+        if 'medias' not in j:
+            raise Exception("SearchApiModule fail to export xml, due to "
+                            "cannot find medias")
+        medias = j['medias']
+        if len(medias) == 0:
+            return new_url
+
+        content = _gen_medias_html(path, medias)
+        templateLoader = jinja2.FileSystemLoader(searchpath="./")
+        templateEnv = jinja2.Environment(loader=templateLoader)
+        template_file = "category.tpl"
+        template = templateEnv.get_template(template_file)
+        output = template.render(content=content,
+                                 width=list_view_width,
+                                 height=list_view_height,
+                                 info_height=list_view_info_height,
+                                 page_title="热门搜索",
+                                 create_time=str(datetime.now())[:19])
+        fd = open(fname, 'w')
+        fd.write(output)
+        fd.close()
+        return new_url
     
 class News7daysApiModule(ApiModule):
-    def __init__(self, sid):
-        ApiModule.__init__(self, sid)
+    def __init__(self, sid, name=""):
+        ApiModule.__init__(self, sid, name)
         self._fill("2003")
 
     def setup_url(self):
-        url = self.url + "/" + self.id
+        url = self.url
         return url
 
     def verify(self):
         return True
+
+    def export_html(self, path, override=True):
+        prefix = os.environ.get('file_prefix', '')
+        new_url = "functions/%snews7days.html"%prefix
+        fname = os.path.join(path, new_url)
+        if override is False and os.path.exists(fname):
+            logging.debug("export %s, ignored"%fname)
+            return new_url
+        self.retrieve()
+        try:
+            j = json.loads(self.data)
+        except:
+            self.set_err(ErrCode.DATA_INVALID, "export_html() fail to load "
+                         "response data to json")
+            return "#None"
+
+        medias = j['medias']
+        if len(medias) == 0:
+            return new_url
+
+        content = _gen_medias_html(path, medias)
+        templateLoader = jinja2.FileSystemLoader(searchpath="./")
+        templateEnv = jinja2.Environment(loader=templateLoader)
+        template_file = "category.tpl"
+        template = templateEnv.get_template(template_file)
+        output = template.render(content=content,
+                                 width=list_view_width,
+                                 height=list_view_height,
+                                 info_height= list_view_info_height,
+                                 page_title="7日更新",
+                                 create_time=str(datetime.now())[:19])
+        fd = open(fname, 'w')
+        fd.write(output)
+        fd.close()
+        return new_url
+        
     
 class TopiclistApiModule(ApiModule):
-    def __init__(self, sid):
-        ApiModule.__init__(self, sid)
+    def __init__(self, sid, name=""):
+        ApiModule.__init__(self, sid, name)
         self._fill("2008")
 
     def setup_url(self):
-        url = self.url + "/" + self.id
+        url = self.url + "?start=0&rows=35"
         return url
+    
     def verify(self):
         return True
 
+    def export_html(self, path, override=True):
+        prefix = os.environ.get('file_prefix', '')
+        new_url = "functions/%stopiclist.html"%prefix
+        fname = os.path.join(path, new_url)
+        if override is False and os.path.exists(fname):
+            logging.debug("export %s, ignored"%fname)
+            return new_url
+        self.retrieve()
+        try:
+            j = json.loads(self.data)
+        except:
+            self.set_err(ErrCode.DATA_INVALID, "export_html() fail to load "
+                         "response data to json")
+            return "#None"
+
+        topics = j['topicList']
+        if len(topics) == 0:
+            return new_url
+        rate = 0.6
+        height = 360 * rate
+        width = 800 * rate
+        content = self._gen_topics_html(path, topics, width, height)
+        templateLoader = jinja2.FileSystemLoader(searchpath="./")
+        templateEnv = jinja2.Environment(loader=templateLoader)
+        template_file = "topiclist.tpl"
+        template = templateEnv.get_template(template_file)
+        
+        output = template.render(content=content,
+                                 width=width,
+                                 height=height,
+                                 info_height=list_view_info_height,
+                                 page_title="所有专题",
+                                 create_time=str(datetime.now())[:19])
+        fd = open(fname, 'w')
+        fd.write(output)
+        fd.close()
+        return new_url
+
+    def _gen_topics_html(self, path, topics, width, height):
+        x = 20
+        y = 60
+        count_per_line = 2
+        
+        xcell = 10
+        ycell = 10
+        line = '''<div class="poster" style="top:{top};left:{left};position:absolute;z-index:1;visibility:show;"><a href="{detail_link}"><img src="{pic}" title="{title}" alt="{alt}" style="width:100%; height:100%"></img></a></div>'''
+        i = 0
+        s = ""
+        while i < len(topics):
+            t = topics[i]
+            picture = t['pics'][0]['url']
+            title = t['topicName']
+            alt = title
+            ret, msg = validate_pic(picture)
+            if not ret:
+                alt += " (no picture load)"
+
+            yy = (i / count_per_line) * (height + ycell) + y
+            xx = (i % count_per_line) * (width + xcell) + x
+            td = TopicApiModule(t['topicId'])
+            # we know the media path is the same level of category
+            detail_link = td.export_html(path, False)
+            detail_link = os.path.join('../', detail_link)
+            s += line.format(top=yy, left=xx, pic=picture,
+                             title=title, 
+                             detail_link=detail_link,
+                             alt=alt)
+            s += '\n'
+            i += 1
+        return s
+
 class HistoryApiModule(ApiModule):
-    def __init__(self, sid):
-        ApiModule.__init__(self, sid)
+    def __init__(self, sid, name=""):
+        ApiModule.__init__(self, sid, name)
         self._fill("3001")
 
     def setup_url(self):
@@ -654,8 +990,8 @@ class HistoryApiModule(ApiModule):
         return True
 
 class GuessApiModule(ApiModule):
-    def __init__(self, sid):
-        ApiModule.__init__(self, sid)
+    def __init__(self, sid, name=""):
+        ApiModule.__init__(self, sid, name)
         self._fill("2006")
 
     def setup_url(self):
@@ -666,20 +1002,55 @@ class GuessApiModule(ApiModule):
         return True
 
 class AllwatchApiModule(ApiModule):
-    def __init__(self, sid):
-        ApiModule.__init__(self, sid)
+    def __init__(self, sid, name=""):
+        ApiModule.__init__(self, sid, name)
         self._fill("2002")
 
     def setup_url(self):
-        url = self.url + "/" + self.id
+        url = self.url
         return url
 
     def verify(self):
         return True
 
+    def export_html(self, path, override=True):
+        prefix = os.environ.get('file_prefix', '')
+        new_url = "functions/%sallwatching.html"%prefix
+        fname = os.path.join(path, new_url)
+        if override is False and os.path.exists(fname):
+            logging.debug("export %s, ignored"%fname)
+            return new_url
+        self.retrieve()
+        try:
+            j = json.loads(self.data)
+        except:
+            self.set_err(ErrCode.DATA_INVALID, "export_html() fail to load "
+                         "response data to json")
+            return "#None"
+
+        medias = j['medias']
+        if len(medias) == 0:
+            return new_url
+
+        content = _gen_medias_html(path, medias)
+        templateLoader = jinja2.FileSystemLoader(searchpath="./")
+        templateEnv = jinja2.Environment(loader=templateLoader)
+        template_file = "category.tpl"
+        template = templateEnv.get_template(template_file)
+        output = template.render(content=content,
+                                 width=list_view_width,
+                                 height=list_view_height,
+                                 info_height=list_view_info_height,
+                                 page_title="大家正在看",
+                                 create_time=str(datetime.now())[:19])
+        fd = open(fname, 'w')
+        fd.write(output)
+        fd.close()
+        return new_url
+
 class ConcertApiModule(ApiModule):
-    def __init__(self, sid):
-        ApiModule.__init__(self, sid)
+    def __init__(self, sid, name=""):
+        ApiModule.__init__(self, sid, name)
         self._fill("5008")
 
     def setup_url(self):
@@ -690,8 +1061,8 @@ class ConcertApiModule(ApiModule):
         return True
 
 class CatchApiModule(ApiModule):
-    def __init__(self, sid):
-        ApiModule.__init__(self, sid)
+    def __init__(self, sid, name=""):
+        ApiModule.__init__(self, sid, name)
         self._fill("3002")
 
     def setup_url(self):
@@ -701,9 +1072,21 @@ class CatchApiModule(ApiModule):
     def verify(self):
         return True
 
+class getVIPinfo(ApiModule):
+    def __init__(self, sid, name=""):
+        ApiModule.__init__(self, sid, name)
+        self._fill("5006")
+
+    def setup_url(self):
+        url = self.url + "/" + self.id
+        return url
+
+    def verify(self):
+        return True
+
 class FavoriteApiModule(ApiModule):
-    def __init__(self, sid):
-        ApiModule.__init__(self, sid)
+    def __init__(self, sid, name=""):
+        ApiModule.__init__(self, sid, name)
         self._fill("3003")
 
     def setup_url(self):
@@ -728,5 +1111,6 @@ module_mapping = {'1001': CategoryApiModule,
                   '3002': CatchApiModule,
                   '3003': FavoriteApiModule,
                   '5002': getAllTrades,
+                  '5006': getVIPinfo,
                   '5008': ConcertApiModule}
 

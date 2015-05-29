@@ -6,6 +6,7 @@
 ALM_BASIC = (9999, "UNKOWN_ISSUE", "")
 # system related alarm, alarmid from 10000 to 19999
 ALM_NETWORK_ISSUE = (10000, "NETWORK_ISSUE", "")
+ALM_NETWORK_SLOW = (10001, "NETWORK_SLOW", "")
 
 # data related alarm, alarmid from 20000 to 29999
 # poster related from 20000 to 20099

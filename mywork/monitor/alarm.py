@@ -7,8 +7,20 @@ sys.setdefaultencoding('UTF8')
 from omlog import (OMlog, om_output, om_err_output,
                    om_warn_output, om_fatal_output)
 import os
+import socket
+import cPickle
+import settings
 from omstring import ALARM_STRING
 from alarm_definition import *
+
+sock = None
+addr = (settings.alarm_server_host, settings.alarm_server_port)
+def setup_network():
+    global sock
+    # need to check the alarm server exists??
+    sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+
+setup_network()
 
 class ALARM_LEVEL():
     NORMAL = 2
@@ -17,68 +29,53 @@ class ALARM_LEVEL():
 
 class Alarm(object):
     ''' three alarm level from 0 to 2, 0 means highest level '''
-    def __init__(self, level, alm_definition):
+    def __init__(self, level, alm_definition, err_msg):
         self.problem = alm_definition[1]
         self.level = level
-        self.level_string = ""
         self.almid = alm_definition[0]
-        if self.level == ALARM_LEVEL.NORMAL:
-            self.level_string = "NORMAL"
-        elif self.level == ALARM_LEVEL.HIGH:
-            self.level_string = "HIGH"
-        elif self.level == ALARM_LEVEL.CRITICAL:
-            self.level_string = "CRITICAL"
-        else:
-            self.level_string = "UNDEFINED_ALARM_LEVEL"
+        self.err_msg = err_msg
+        self.module_name = os.environ.get('module_name', "UNDEFINED")
 
-    def report_alarm(self, err_msg):
-        om = OMlog('ALARM')
-        om.set_module('ALARM')
+    def report_alarm(self):
+        om = OMlog(self.level)
+        om.set_module(self.module_name)
         om.add("problem", self.problem)
         om.add("alarmid", self.almid)
-        om.add("msg", err_msg)
+        om.add("msg", self.err_msg)
         return om.spool(ALARM_STRING)
+
+    def sync_to_server(self):
+        global sock, addr
+        if sock is None:
+            return False
+        obj = cPickle.dumps(self)
+        sock.sendto(obj, addr)
 
 class NormalAlarm(Alarm):
-    def __init__(self, specific_problem):
-        Alarm.__init__(self, 2, specific_problem)
+    def __init__(self, specific_problem, err_msg):
+        Alarm.__init__(self, 'NORMAL_ALARM', specific_problem, err_msg)
 
 class HighAlarm(Alarm):
-    def __init__(self, specific_problem):
-        Alarm.__init__(self, 1, specific_problem)
+    def __init__(self, specific_problem, err_msg):
+        Alarm.__init__(self, 'HIGH_ALARM', specific_problem, err_msg)
 
-    def report_alarm(self, err_msg):
-        om = OMlog('HIGH_ALARM')
-        om.set_module('ALARM')
-        om.add("problem", self.problem)
-        om.add("alarmid", self.almid)
-        om.add("msg", err_msg)
-        return om.spool(ALARM_STRING)
-        
 class CriticalAlarm(Alarm):
-    def __init__(self, specific_problem):
-        Alarm.__init__(self, 0, specific_problem)
-
-    def report_alarm(self, err_msg):
-        om = OMlog('CRITICAL_ALARM')
-        om.set_module('ALARM')
-        om.add("problem", self.problem)
-        om.add("alarmid", self.almid)
-        om.add("msg", err_msg)
-        return om.spool(ALARM_STRING)
+    def __init__(self, specific_problem, err_msg):
+        Alarm.__init__(self, 'CRITICAL_ALARM', specific_problem, err_msg)
 
 def alarm(level, specific_problem, err_msg):
     alm = None
     if level == ALARM_LEVEL.CRITICAL:
-        alm = CriticalAlarm(specific_problem)
+        alm = CriticalAlarm(specific_problem, err_msg)
     elif level == ALARM_LEVEL.HIGH:
-        alm = HighAlarm(specific_problem)
+        alm = HighAlarm(specific_problem, err_msg)
     elif level == ALARM_LEVEL.NORMAL:
-        alm = NormalAlarm(specific_problem)
+        alm = NormalAlarm(specific_problem, err_msg)
     else:
         print("wrong alarm level")
         return
-    om_msg = alm.report_alarm(err_msg)
+    om_msg = alm.report_alarm()
+    alm.sync_to_server()
 
     # every alarm message will be write to a file
     alarm_file = os.environ.get('alarm_file', '')

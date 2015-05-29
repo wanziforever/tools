@@ -12,7 +12,7 @@ shift 1
 COMMAND=$1
 shift 1
 
-SLEEPTIME=20
+SLEEPTIME=1
 
 #check pid file for process
 if [ -a $PIDFILE ]; then
@@ -35,5 +35,6 @@ while true; do
     fi
 
     #remove pid file
+    echo "sleep ${SLEEPTIME} minutes ..."
     sleep $((SLEEPTIME))m
 done

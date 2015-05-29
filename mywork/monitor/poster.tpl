@@ -22,7 +22,7 @@
   </head>
   <body>
     <script type="text/javascript" src="poster_list.js"></script>
-    <nav class="navbar navbar-default" role="navigation">
+    <nav class="navbar navbar-default" role="navigation" style="margin:0">
       <div class="navbar-header">
         <a class="navbar-brand" href="#">聚好看首页模拟页面<small><small>[snapshot generated at {{create_time}}]</small></small></a>
       </div>
@@ -48,5 +48,12 @@
     </nav>
       
     {{content}}
+    <script type='text/javascript'>
+      $(document).ready(function() {
+      $('.carousel').carousel({
+      interval: 5000
+      })
+      });
+    </script>
   </body>
 </html>

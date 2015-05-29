@@ -20,9 +20,16 @@ from datetime import datetime, timedelta
 from omlog import (OMlog, om_output, om_err_output,
                    om_warn_output, om_fatal_output)
 
-STATIC_FRONTPAGE_THRESHOLD = 2000 # msec
-RECOM_FRONTPAGE_THRESHOLD = 2000 # msec
-TOTAL_FRONTPAGE_THRESHOLD = 4000 # msec
+settings.set_module_name("LAUNCHER_PERF_MON")
+
+STATIC_FRONTPAGE_THRESHOLD_lvl1 = 4000 # msec
+STATIC_FRONTPAGE_THRESHOLD_lvl2 = 6000 # msec
+
+RECOM_FRONTPAGE_THRESHOLD_lvl1 = 4000 # msec
+RECOM_FRONTPAGE_THRESHOLD_lvl2 = 6000 # msec
+
+TOTAL_FRONTPAGE_THRESHOLD_lvl1 = 8000 # msec
+TOTAL_FRONTPAGE_THRESHOLD_lvl2 = 10000 # msec
 
 def get_frontpage_data():
     data = ""
@@ -91,10 +98,14 @@ def call_monitor():
         return False
     end_ts = int(time.time() * 1000)
     delta = end_ts - start_ts
-    if delta > STATIC_FRONTPAGE_THRESHOLD:
+    if delta > STATIC_FRONTPAGE_THRESHOLD_lvl2:
         alarm(ALARM_LEVEL.CRITICAL, ALM_NETWORK_SLOW,
               "static frontpage load consume too much time %s(threshold %s)"
-              %(delta, STATIC_FRONTPAGE_THRESHOLD))
+              %(delta, STATIC_FRONTPAGE_THRESHOLD_lvl2))
+    elif delta > STATIC_FRONTPAGE_THRESHOLD_lvl1:
+        alarm(ALARM_LEVEL.HIGH, ALM_NETWORK_SLOW,
+              "static frontpage load consume too much time %s(threshold %s)"
+              %(delta, STATIC_FRONTPAGE_THRESHOLD_lvl1))
     jdata = json.loads(data)
     settings.re_num = int(jdata['re_num'])
     settings.model_id = jdata['model_id']
@@ -106,10 +117,14 @@ def call_monitor():
         return False
     end_ts = int(time.time() * 1000)
     delta = end_ts - start_ts
-    if delta > RECOM_FRONTPAGE_THRESHOLD:
+    if delta > RECOM_FRONTPAGE_THRESHOLD_lvl2:
         alarm(ALARM_LEVEL.CRITICAL, ALM_NETWORK_SLOW,
               "recom frontpage load consume too much time %s(threshold %s)"
-              %(delta, RECOM_FRONTPAGE_THRESHOLD))
+              %(delta, RECOM_FRONTPAGE_THRESHOLD_lvl2))
+    elif delta > RECOM_FRONTPAGE_THRESHOLD_lvl1:
+        alarm(ALARM_LEVEL.HIGH, ALM_NETWORK_SLOW,
+              "recom frontpage load consume too much time %s(threshold %s)"
+              %(delta, RECOM_FRONTPAGE_THRESHOLD_lvl1))
     return True
 
 def set_alarm_configration():
@@ -130,8 +145,12 @@ if __name__ == "__main__":
             continue
         end_ts = int(time.time() * 1000)
         delta = end_ts - start_ts
-        if delta > TOTAL_FRONTPAGE_THRESHOLD:
+        if delta > TOTAL_FRONTPAGE_THRESHOLD_lvl2 :
             alarm(ALARM_LEVEL.CRITICAL, ALM_NETWORK_SLOW,
                   "total frontpage load consume too much time %s(threshold %s)"
-                  %(delta, TOTAL_FRONTPAGE_THRESHOLD))
+                  %(delta, TOTAL_FRONTPAGE_THRESHOLD_lvl2))
+        elif delta > TOTAL_FRONTPAGE_THRESHOLD_lvl1:
+            alarm(ALARM_LEVEL.HIGH, ALM_NETWORK_SLOW,
+                  "total frontpage load consume too much time %s(threshold %s)"
+                  %(delta, TOTAL_FRONTPAGE_THRESHOLD_lvl1))
         time.sleep(2)

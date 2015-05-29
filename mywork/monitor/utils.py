@@ -87,6 +87,8 @@ def validate_pic(url):
             #fp.close()
             debug("urils::validate_pic() successfully access the picture")
             return True, ""
+        except KeyboardInterrupt:
+                exit(2)
         except Exception, e:
             err_msg = str(e)
             debug("urils::validate_pic() failed to load picture for %s"%(i+1))
@@ -99,7 +101,7 @@ def export_poster_list_js():
     current poster '''
     poster_files = []
     re_poster = re.compile(r"poster.*.html")
-    for f in os.listdir(settings.WEB_HOME):
+    for f in os.listdir(settings.POSTER_HOME):
         if not re_poster.match(f):
             continue
         poster_files.append(f)
@@ -115,7 +117,7 @@ def export_poster_list_js():
     template_file = "poster_list.tpl"
     template = templateEnv.get_template(template_file)
     output = template.render(content=s)
-    fname = os.path.join(settings.WEB_HOME, "poster_list.js")
+    fname = os.path.join(settings.POSTER_HOME, "poster_list.js")
     info("generating %s file"%fname)
     fd = open(fname, 'w')
     fd.write(output)
@@ -139,6 +141,8 @@ def dump_pic(url):
         c.setopt(pycurl.LOW_SPEED_TIME, 20)
         c.perform()
         fp.close()
+    except KeyboardInterrupt:
+        exit(2)
     except Exception,e :
         err("failed to save picture(%s) locally"%url)
         err(str(e))

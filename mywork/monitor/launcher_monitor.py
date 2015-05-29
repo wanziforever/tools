@@ -494,11 +494,12 @@ def mark_success(alarm_file):
     
 if __name__ == "__main__":
     handle_argv()
-    
+    settings.set_module_name("LAUNCHER_MON_%s"
+                             %(settings.VENDER))
     if not data_initialize():
         om_err_output("main() fail to initialize data")
         exit(0)
-
+    
     set_alarm_configration()
     examine()
     # if there is alarm file generated, it means there are some error
@@ -509,7 +510,7 @@ if __name__ == "__main__":
         mark_success(alarm_file)
     else:
         notify_alarm_by_mail()
-    copy_to_web_location(alarm_file)
+    #copy_to_web_location(alarm_file)
 
     print "Done"
 

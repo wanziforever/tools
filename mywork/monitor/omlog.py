@@ -18,7 +18,8 @@ indent = "   "
 lineprefix = "+++ {host} {date} {level} {module} #{seq}"
 linesuffix = "END OF REPORT #{seq}++-"
 
-OM_LOG_LEVEL = ['INFO', 'WARN', 'ERROR', 'FATAL', 'ALARM', "HIGH_ALARM", "CRITICAL_ALARM"]
+OM_LOG_LEVEL = ['INFO', 'WARN', 'ERROR', 'FATAL', 'NORMAL_ALARM',
+                "HIGH_ALARM", "CRITICAL_ALARM"]
 seq = 0
 
 def get_seq():
@@ -86,21 +87,26 @@ class OMlog(object):
 
 def om_output(omstring):
     om = OMlog("INFO")
+    om.set_module(os.environ.get('module_name', 'UNDEFINED'))
     om.spool(omstring)
 
 def om_err_output(errstring):
     om = OMlog("ERROR")
+    om.set_module(os.environ.get('module_name', 'UNDEFINED'))
     om.spool(errstring)
 
 def om_warn_output(warnstring):
     om = OMlog("WARN")
+    om.set_module(os.environ.get('module_name', 'UNDEFINED'))
     om.spool(warnstring)
 
 def om_fatal_output(fatalstring):
     om = OMlog('FATAL')
+    om.set_module(os.environ.get('module_name', 'UNDEFINED'))
     om.spool(fatalstring)
 
 if __name__ == "__main__":
     pass
     om = OMlog("ERROR")
+    om.set_module(os.environ.get('module_name', 'UNDEFINED'))
     om.spool('''mark fails with a "'str' object does not support item assignment" error,even though''')

@@ -1,3 +1,6 @@
 *~
+*.log
+*.alm
+*.pid
 test/
 *.pyc
