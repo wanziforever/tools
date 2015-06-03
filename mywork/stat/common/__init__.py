@@ -1,1 +1,0 @@
-#!/usrbin/env python

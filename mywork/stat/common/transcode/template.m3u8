@@ -1,9 +1,0 @@
-#EXTM3U
-#EXT-X-TARGETDURATION:${segmentSeconds}
-% for segment in segments:
-#EXTINF:${segment.seconds},
-${segment.path}
-% endfor
-% if end:
-#EXT-X-ENDLIST
-% endif

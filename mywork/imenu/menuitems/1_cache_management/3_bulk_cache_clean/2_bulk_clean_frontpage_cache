@@ -1,4 +1,0 @@
-#!/usr/bin/env python
-
-if __name__ == "__main__":
-    print "++ BULK_CLEAN_FRONTPAGE_CACHE NOT IMPLEMENTED"
