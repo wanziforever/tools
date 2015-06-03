@@ -9,11 +9,9 @@
       div img {
           --webkit-transition: all 0.5s; -moz-transition: all 0.5s; -o-transition: all  0.5s; display:block
       }
-      .divcss5{ position:relative;width:554px; height:346px; margin:0 auto}
-      .divcss5 a,.divcss5 span{display:none; text-decoration:none}
-      .divcss5:hover{cursor:pointer}
-      .divcss5:hover a.now{cursor:pointer; position:absolute; top:0; width:100%; height:100%; z-index:100; left:0; display:block;}
-      .divcss5:hover span{ display:block;position:absolute; bottom:0; left:0;color:#FFF;width:554px; z-index:10;height:36px; line-height:36px; background:#000;filter:alpha(opacity=60);-moz-opacity:0.5;opacity: 0.5;}
+      .table th, .table td {
+      border-top: none !important;
+       }
       img{padding:0; border:0;}
     </style>
     <link href="../css/bootstrap.min.css" rel="stylesheet">

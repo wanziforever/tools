@@ -35,6 +35,7 @@ iqiyi_re = re.compile(r'qiyipic')
 
 rate = 0.7
 
+
 class TileHtmlElement(object):
     #html_tag = ('''<div class="divcss5" style="top:{top};left:{left};width:{width};height:{height};'''
     #            '''position:absolute;z-index:1;visibility:show; '''
@@ -42,13 +43,14 @@ class TileHtmlElement(object):
     #            '''<span>{text}</span></div>''')
     html_tag = ('''<div style="top:{top};left:{left};width:{width};height:{height};'''
                 '''position:absolute;z-index:1;visibility:show;">'''
-                '''<a href="{url}"><img src="{pic}" title="{title}" alt="{alt}" style="width:100%;height:100%"></img></a></div>''')
+                '''<a href="{url}" {vip}><img src="{pic}" title="{title}" alt="{alt}" style="width:100%;height:100%"></img></a></div>''')
     def __init__(self):
         self.pos = []
         self.size = []
         self.facets = []
 
     def export(self):
+        global VIP_TITLE_INDEX
         # if the picture is from iqiyi, save it to local disk
         picture = self.facets[0].pic
         m = iqiyi_re.search(picture)
@@ -60,14 +62,38 @@ class TileHtmlElement(object):
         ret, msg = validate_pic(picture)
         if not ret:
             alt += " (no picture load)"
-        return TileHtmlElement.html_tag.format(top=self.pos[1] * rate,
-                                               left=self.pos[0] * rate,
-                                               width=self.size[1] * rate,
-                                               height=self.size[0] * rate,
-                                               pic=picture,
-                                               title=title,
-                                               alt=alt,
-                                               url=self.facets[0].url)
+
+        addtion = self.facets[0].addtion
+        
+        
+        # if addtion is empty, just return the poster div html text
+        # if not empty, add the addtion information before, the addtion
+        # information currently is for VIP dialog exported by related
+        # api module, also we need access the dialog name for more than
+        # one vip dialog need to support
+        if len(addtion) == 0:
+            return TileHtmlElement.html_tag.format(top=self.pos[1] * rate,
+                                                   left=self.pos[0] * rate,
+                                                   width=self.size[1] * rate,
+                                                   height=self.size[0] * rate,
+                                                   pic=picture,
+                                                   title=title,
+                                                   alt=alt,
+                                                   url=self.facets[0].url,
+                                                   vip="")
+        else:
+
+            vip_dialog_name = "basicModal%s"%self.facets[0].vip_dialog_name
+            return addtion + TileHtmlElement.html_tag.format(top=self.pos[1] * rate,
+                                                             left=self.pos[0] * rate,
+                                                             width=self.size[1] * rate,
+                                                             height=self.size[0] * rate,
+                                                             pic=picture,
+                                                             title=title,
+                                                             alt=alt,
+                                                             url=self.facets[0].url,
+                                                             vip='''data-toggle="modal" data-target="#%s"'''%vip_dialog_name)
+        
         
 
 class FacetHtmlElement(object):
@@ -75,6 +101,8 @@ class FacetHtmlElement(object):
         self.pic = pic
         self.title = title
         self.url = ""
+        self.addtion = ""
+        self.vip_dialog_name = ""
 
 class ViewExport(object):
     def __init__(self, view_obj):
@@ -126,7 +154,15 @@ class ViewExport(object):
                     exit(0)
                 cl = api_module.module_mapping[facet.typecode]
                 m = cl(facet.id)
-                f.url = m.export_html(settings.POSTER_HOME, settings.override)
+                # if the facet is the VIP, the export html will return the dialog
+                # related html text, just attach it to the poster div part
+                if facet.typecode != "5006":
+                    f.url = m.export_html(settings.POSTER_HOME, settings.override)
+                else:
+                    f.url = "#"
+                    f.addtion=m.export_html(settings.POSTER_HOME, settings.override)
+                    f.vip_dialog_name = api_module.getVIPinfo.VIP_TITLE_INDEX
+                    
                 om_output("Facet %s export html %s"%(facet.title, f.url))
                 if f.url is False:
                     f.url = "#"

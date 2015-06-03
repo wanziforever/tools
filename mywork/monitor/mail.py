@@ -8,7 +8,7 @@ from email.mime.text import MIMEText
 mailto_list = ['wanziforever@163.com']
 mail_host = "mail.hisense.com"
 mail_user = "wangliang8@hisense.com"
-mail_pass = "Wl@800803"
+mail_pass = ""
 mail_postfix = "hisense.com"
 
 def send_mail(sub, content):

@@ -276,6 +276,8 @@ def get_recom_data():
         c.setopt(pycurl.WRITEFUNCTION, b.write)
         c.perform()
         data = b.getvalue()
+    except KeyboardInterrupt:
+        exit(0)
     except Exception, e:
         om_err_output("exception meet when getting recom data (%s)"%url)
         om_err_output(str(e))

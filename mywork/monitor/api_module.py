@@ -1027,7 +1027,9 @@ class AllwatchApiModule(ApiModule):
             self.set_err(ErrCode.DATA_INVALID, "export_html() fail to load "
                          "response data to json")
             return "#None"
-
+        if 'medias' not in j:
+            self.set_err(ErrCode.DATA_INVALID, "no medias tag found")
+            return False
         medias = j['medias']
         if len(medias) == 0:
             return new_url
@@ -1073,16 +1075,139 @@ class CatchApiModule(ApiModule):
         return True
 
 class getVIPinfo(ApiModule):
+    VIP_TITLE_INDEX = 0
     def __init__(self, sid, name=""):
         ApiModule.__init__(self, sid, name)
         self._fill("5006")
 
     def setup_url(self):
-        url = self.url + "/" + self.id
+        url = self.url + "?vipId=" + self.id
         return url
 
     def verify(self):
         return True
+
+    def gen_vip_dialog(self, id, title, desc, prices, medias_link):
+        info = '''<div class="modal fade" id="{id}" tabindex="-1" role="dialog" aria-labelledby="{id}" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h4 class="modal-title" id="myModalLabel">< {title}</h4>
+          </div>
+          <div class="modal-body">
+            <div class="container">
+              <div class="row">
+                <div class="col-md-6">
+                  {desc}
+                </div>
+                <div class="col-md-6">
+                  <table class="table table-hover" style="boder:none;">
+                    <tbody>
+                      {prices_string}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            <a href="{medias_link}" class="btn btn-primary">进入影片列表</a>
+          </div>
+        </div>
+      </div>
+    </div>'''
+        price_info = '''<tr><td>{discount}</td><td><strike>{price}</strike></td></tr>'''
+        prices_string = ""
+        for p in prices:
+            prices_string += price_info.format(price=p[0], discount=p[1])
+        return info.format(title=title, id=id, desc=desc, prices_string=prices_string, medias_link=medias_link)
+
+
+    def export_html(self, path, override=True):
+        # normally export_html return the new url, but this api
+        # return the html code
+        prefix = os.environ.get('file_prefix', '')
+        new_url = "functions/%sallwatching.html"%prefix
+        fname = os.path.join(path, new_url)
+        if override is False and os.path.exists(fname):
+            logging.debug("export %s, ignored"%fname)
+            return new_url
+        self.retrieve()
+        try:
+            j = json.loads(self.data)
+        except:
+            self.set_err(ErrCode.DATA_INVALID, "export_html() fail to load "
+                         "response data to json")
+            return "#None"
+        title = j['title']
+        desc = j['desc']
+        prices = []
+        for p in j['fee_detail']:
+            # no check for current price info, is should not be empty
+            current = "%s元/%s"%(float(p['price']['price'])/100, p['price']['desc'])
+            discount = ""
+            if not p['discount']:
+                discount = current
+            else:
+                discount = "%s元/%s"%(float(p['discount']['discountPrice'])/100, p['discount']['desc'])
+            prices.append([current, discount])
+        getVIPinfo.VIP_TITLE_INDEX += 1
+        m = getVIPmedias(self.id, title)
+        medias_link = m.export_html(settings.POSTER_HOME, settings.override)
+        
+        return self.gen_vip_dialog("basicModal%s"%str(getVIPinfo.VIP_TITLE_INDEX), title,
+                                   desc, prices, medias_link)
+        
+
+class getVIPmedias(ApiModule):
+    def __init__(self, sid, name=""):
+        ApiModule.__init__(self, sid, name)
+        self._fill("5007")
+
+    def setup_url(self):
+        url = self.url + "?vipId=" + self.id + "&start=0&rows=100"
+        return url
+
+    def verify(self):
+        return True
+
+    def export_html(self, path, override=True):
+        prefix = os.environ.get('file_prefix', '')
+        new_url = "functions/%svipinfo_%s.html"%(prefix, self.id)
+        fname = os.path.join(path, new_url)
+        if override is False and os.path.exists(fname):
+            logging.debug("export %s, ignored"%fname)
+            return new_url
+        self.retrieve()
+        try:
+            j = json.loads(self.data)
+        except:
+            self.set_err(ErrCode.DATA_INVALID, "export_html() fail to load "
+                         "response data to json")
+            return "#None"
+        if 'medias' not in j:
+            self.set_err(ErrCode.DATA_INVALID, "no medias tag found")
+            return False
+        medias = j['medias']
+        if len(medias) == 0:
+            return new_url
+
+        content = _gen_medias_html(path, medias)
+        templateLoader = jinja2.FileSystemLoader(searchpath="./")
+        templateEnv = jinja2.Environment(loader=templateLoader)
+        template_file = "category.tpl"
+        template = templateEnv.get_template(template_file)
+        output = template.render(content=content,
+                                 width=list_view_width,
+                                 height=list_view_height,
+                                 info_height=list_view_info_height,
+                                 page_title=self.name,
+                                 create_time=str(datetime.now())[:19])
+        fd = open(fname, 'w')
+        fd.write(output)
+        fd.close()
+        return new_url
 
 class FavoriteApiModule(ApiModule):
     def __init__(self, sid, name=""):
@@ -1112,5 +1237,6 @@ module_mapping = {'1001': CategoryApiModule,
                   '3003': FavoriteApiModule,
                   '5002': getAllTrades,
                   '5006': getVIPinfo,
+                  '5007': getVIPmedias,
                   '5008': ConcertApiModule}
 
