@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Jamdeo Setting</title>
+    <link href="/static/css/bootstrap/3.0.0/bootstrap.min.css" rel="stylesheet"/>
+    <link href="static/css/settings.css" rel="stylesheet" />
+    <link href="/static/css/tab.css" rel="stylesheet"/>
+    <link href="/static/css/common.css" rel="stylesheet"/>
+</head>
+<header class="navbar navbar-fixed-top bs-docs-nav" role="banner">
+    <div class="container">
+        <div class="navbar-header">
+            <button class="navbar-toggle" type="button" data-toggle="collapse" data-target=".bs-navbar-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a href="#" class="navbar-brand">Jamdeo Cloud</a>
+        </div>
+        <nav class="collapse navbar-collapse bs-navbar-collapse" role="navigation">
+            <ul class="nav navbar-nav">
+                <li>
+                    <a href="/device/">Device</a>
+                </li>
+                <li>
+                    <a href="/ota/">OTA</a>
+                </li>
+                <li>
+                    <a href="/editorial/">Editorial</a>
+                </li>
+                <li>
+                    <a href="/usagestats/">UsageStats</a>
+                </li>
+                <li>
+                    <a href="/bugreport/">Bug Report</a>
+                </li>
+                <li class="active">
+                    <a href="#">Settings</a>
+                </li>
+            </ul>
+            <ul class="nav navbar-nav navbar-right">
+                <li>
+                    <p id="currentUsername" style="padding-top: 15px;padding-right: 10px;color: #ffffff"></p>
+                </li>
+                <li>
+                    <a id="logoutBtn" href="#">Logout</a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+</header>
+<body>
+    <div class="container settings_content">
+        <div class="row row-offcanvas row-offcanvas-left">
+            <div class="col-xs-6 col-sm-3 sidebar-offcanvas" id="sidebar" role="navigation">
+                <ul id="leftNav" class="nav nav-pills nav-stacked">
+                    <li class="active"><a href="#ResetPassword">Reset Password</a></li>
+                    <!--<li><a href="#deviceGroup">Device Group</a></li>-->
+                    <!--<li><a href="#ruleManage">Rule Manage</a></li>-->
+                </ul>
+            </div>
+            <div id="SettingsContainer" class="col-xs-12 col-sm-9">
+            </div>
+        </div>
+    </div>
+
+    <script type="text/ejs" id="resetPasswordContent">
+        <div class="panel panel-primary">
+            <div class="panel-heading">
+                <h3 class="panel-title">Reset Password</h3>
+            </div>
+            <div class="panel-body col-md-offset-2">
+
+                <form class="form-horizontal" role="form">
+                    <div class="form-group">
+                        <div class="alert alert-warning alert-dismissable col-md-9" id="resetSuccess" hidden="true">
+                            <!--<button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>-->
+                            <strong> Success!</strong>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="alert alert-warning alert-dismissable col-md-9" id="UnSameText" hidden="true">
+                            <!--<button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>-->
+                            <strong> New password and repeat password are not equal.</strong>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="inputOldPassword" class="col-md-3 control-label">Current</label>
+                        <div class="col-md-5">
+                            <input type="password" class="form-control" id="inputOldPassword">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="inputNewPassword" class="col-md-3 control-label">New</label>
+                        <div class="col-md-5">
+                            <input type="password" class="form-control" id="inputNewPassword">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="inputReNewPassword" class="col-md-3 control-label">Re-type new</label>
+                        <div class="col-md-5">
+                            <input type="password" class="form-control" id="inputReNewPassword">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="col-md-offset-5 col-md-10">
+                            <!--<button id="ResetBtn" class="btn btn-default">Reset</button>-->
+                            <a id="ResetBtn" href="#" class="btn btn-default ResetBtn">Save Changes</a>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </script>
+
+</body>
+
+<script type="text/javascript" src="/static/js/jquery-1.10.2.min.js"></script>
+<script type="text/javascript" src="/static/js/can.all.js"></script>
+<script type="text/javascript" src="/static/js/bootstrap/3.0.0/bootstrap.min.js"></script>
+<script type="text/javascript" src="/static/js/jquery.bootstrap.teninedialog.js"></script>
+<script type="text/javascript" src="/static/js/jquery.serializeObject.js"></script>
+<script type="text/javascript" src="/static/js/bootstrap-paginator.js"></script>
+<script type="text/javascript" src="/static/js/Validform_v5.3.2_min.js"></script>
+<script type="text/javascript" src="/static/js/writeFile.js"></script>
+<script type="text/javascript" src="/static/js/logout.js"></script>
+<script type="text/javascript" src="/static/js/common.js"></script>
+<script type="text/javascript" src="/static/js/md5.js"></script>
+
+<script type="text/javascript" src="static/js/settings.js"></script>
+</html>

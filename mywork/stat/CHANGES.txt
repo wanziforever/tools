@@ -1,0 +1,21 @@
+Changes with slimstat 1.0.0.0                                     16 Dec 2014
+
+*) Feature: 实现初步的统计分析系统的界面设计
+*) Feature: 实现了数据统计的数据对接，包括活跃用户，点播用户，点播时长等数据等
+*) Feature: 实现了界面和数据之间的接口
+
+Changes with slimstat 0.3.0.0                                     10 Dec 2014
+*) Feature: 使用chartjs作为报表显示框架
+*) Feature: 使用bottle和其中template技术作为支持报表数据，并且把chartjs的js代码作为template提供
+*) Feature: 开发数据接口API，设计数据提供方式
+
+Changes with slimstat 0.2.0.0                                     1 Dec 2014
+*) Feature: 设计了数据需要统计的基本核心数据的提取，合并和计算
+*) Feature: 实现了核心数据报表的生成和打印
+
+Changes with slimstat 0.1.0.0                                     20 Nov 2014
+*) Feature: 设计了底层数据通信机制，包括消息队列系统，和多进程工作模型，多进程协同工作的基类
+*) Feature: 设计基础的文本数据库，用于简单环境下的文本可读的数据操作模式。
+*) Feature: 设计了提取进程，计算进程和合并进程的工作模型，实现提取进程，计算进程和合并进程的基类，并且实现三个进程之间的基本通信机制
+*) Feature: 设计和实现了日志格式的基础数据结构，和内部通信消息的基本数据结构
+*) Feature: 设计和实现了适用于当前统计维度的数据模型，用来存储数据和提供按照日期来管理的数据模型

@@ -1,0 +1,296 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+from core import Application, make_app_wrappers, request
+from core.bottle import template
+from core.mydb import Mydb, MySession
+#from datetime import datetime, timedelta
+import datetime
+import time
+
+app = Application()
+get, post = make_app_wrappers(app)
+db = Mydb()
+db.connect('report')
+
+@get('/')
+def index():
+    session = db.open('all_users_day')
+    entries = session.select('*')
+    session.close()
+    user_day_map = []
+    for key, entry in entries:
+        if entry[0].lower() != 'hisense':
+            continue
+        user_day_map.append([entry[1], entry[2]])
+
+    user_day_map = sorted(user_day_map, key=lambda map: map[0], reverse=False)
+    days = [d[0][-5:] for d in user_day_map]
+    counts = [d[1] for d in user_day_map]
+
+    return template('portal',
+                    days=days[-30:],
+                    data=repr(counts[-30:]).replace('\'', ''),)
+
+def compute_days(to_day, intvl):
+    ''' here the input parameters changed by this function '''
+    intvl = int(intvl)
+    if to_day == '':
+        to_day = str(datetime.datetime.now())[:10]
+
+    d = datetime.datetime.strptime(to_day, '%Y-%m-%d')
+
+    pre_to_day = str(d - datetime.timedelta(days=intvl))[:10]
+    next_to_day = str(d + datetime.timedelta(days=intvl))[:10]
+
+    days = []
+    for i in range(int(intvl)):
+        days.append(str(d-datetime.timedelta((int(intvl)-i-1)))[:10])
+
+    return next_to_day, pre_to_day, days
+
+@get('/users')
+def users_portal():
+    return template('users_portal.tpl')
+
+@get('/times')
+def times_portal():
+    return template('times_portal.tpl')
+
+@get('/duration')
+def duration_portal():
+    return template('duration_portal.tpl')
+
+@get('/playtimes')
+def play_times():
+    to_day = request.query.to
+    intvl = request.query.intvl
+    vender = request.query.vender
+    if intvl == '':
+        intvl = 30
+    next_to_day, pre_to_day, days = compute_days(to_day, intvl)
+    counts = []
+    session = db.open('play_times_day')
+
+    if vender == '':
+        vender = "HISENSE"
+
+    vender = vender.upper()
+    
+    for day in days:
+        entry = session.select({"date":day, "vender":vender})
+        if entry is None:
+            counts.append('0')
+            continue
+        count = entry[1][2]
+        counts.append(count)
+    session.close()
+
+    days = [day[5:] for day in days]
+    return template('play_times',
+                    days=days,
+                    data=repr(counts).replace('\'', ''),
+                    pre_to_day=pre_to_day,
+                    next_to_day=next_to_day,
+                    intvl=intvl,
+                    vender=vender)
+    
+@get('/actusers')
+def active_users():
+    to_day = request.query.to
+    intvl = request.query.intvl
+    if intvl == '':
+        intvl = 30
+    next_to_day, pre_to_day, days = compute_days(to_day, intvl)
+    counts = []
+    session = db.open('active_users_day')
+    for day in days:
+        entry = session.select({"date":day, "model":"HISENSE"})
+        if entry is None:
+            counts.append('0')
+            continue
+        count = entry[1][2]
+        counts.append(count)
+    session.close()
+
+    days = [day[5:] for day in days]
+    return template('active_users',
+                    days=days,
+                    data=repr(counts).replace('\'', ''),
+                    pre_to_day=pre_to_day,
+                    next_to_day=next_to_day,
+                    intvl=intvl)
+
+@get('/allusers')
+def active_users():
+    to_day = request.query.to
+    intvl = request.query.intvl
+    if intvl == '':
+        intvl = 30
+    next_to_day, pre_to_day, days = compute_days(to_day, intvl)
+    counts = []
+    session = db.open('all_users_day')
+    for day in days:
+        entry = session.select({"date":day, "model":"HISENSE"})
+        if entry is None:
+            counts.append('0')
+            continue
+        count = entry[1][2]
+        counts.append(count)
+    session.close()
+
+    days = [day[5:] for day in days]
+    return template('all_users',
+                    days=days,
+                    data=repr(counts).replace('\'', ''),
+                    pre_to_day=pre_to_day,
+                    next_to_day=next_to_day,
+                    intvl=intvl)
+
+@get('/playusers')
+def play_users():
+    to_day = request.query.to
+    intvl = request.query.intvl
+    vender = request.query.vender
+    if vender.lower() == "other":
+        vender = '0'
+    if intvl == '':
+        intvl = 30
+    next_to_day, pre_to_day, days = compute_days(to_day, intvl)
+    counts = []
+    session = db.open('play_users_day')
+
+    if vender == '':
+        vender = "HISENSE"
+
+    vender = vender.upper()
+    
+    for day in days:
+        entry = session.select({"date":day, "vender":vender})
+        if entry is None:
+            counts.append('0')
+            continue
+        count = entry[1][2]
+        counts.append(count)
+    session.close()
+
+    days = [day[5:] for day in days]
+    if vender == '0':
+        vender = 'OTHER'
+    return template('play_users',
+                    days=days,
+                    data=repr(counts).replace('\'', ''),
+                    pre_to_day=pre_to_day,
+                    next_to_day=next_to_day,
+                    intvl=intvl,
+                    vender=vender)
+
+@get('/playduration')
+def play_times():
+    to_day = request.query.to
+    intvl = request.query.intvl
+    vender = request.query.vender
+    if vender.lower() == "other":
+        vender = '0'
+    if intvl == '':
+        intvl = 30
+    next_to_day, pre_to_day, days = compute_days(to_day, intvl)
+    counts = []
+    session = db.open('play_duration_day')
+
+    if vender == '':
+        vender = "HISENSE"
+
+    vender = vender.upper()
+    
+    for day in days:
+        entry = session.select({"date":day, "vender":vender})
+        if entry is None:
+            counts.append('0')
+            continue
+        count = int(entry[1][2]) / 60 # convert to min
+        if count < 0:
+            count = 0
+        counts.append(count)
+    session.close()
+
+    days = [day[5:] for day in days]
+    if vender == '0':
+        vender = 'other'
+    return template('play_duration',
+                    days=days,
+                    data=repr(counts).replace('\'', ''),
+                    pre_to_day=pre_to_day,
+                    next_to_day=next_to_day,
+                    intvl=intvl,
+                    vender=vender)
+
+@get('/playdurationrate')
+def play_times():
+    to_day = request.query.to
+    intvl = request.query.intvl
+    vender = request.query.vender
+
+    if vender.lower() == "other":
+        vender = '0'
+    elif vender == '':
+        vender = "HISENSE"
+        
+    if intvl == '':
+        intvl = 30
+    next_to_day, pre_to_day, days = compute_days(to_day, intvl)
+    counts = []
+    session = db.open('play_duration_rate_day')
+
+    vender = vender.upper()
+    
+    for day in days:
+        entry = session.select({"date":day, "vender":vender})
+        if entry is None:
+            counts.append('0')
+            continue
+        count = int(entry[1][2]) / 60 # convert to min
+        if count < 0:
+            count = 0
+        counts.append(count)
+    session.close()
+
+    days = [day[5:] for day in days]
+    if vender == '0':
+        vender = 'other'
+    return template('play_duration_rate',
+                    days=days,
+                    data=repr(counts).replace('\'', ''),
+                    pre_to_day=pre_to_day,
+                    next_to_day=next_to_day,
+                    intvl=intvl,
+                    vender=vender)
+@get('/freq')
+def play_freq():
+    to_day = request.query.to
+    intvl = request.query.intvl
+    if intvl == '':
+        intvl = 30
+    next_to_day, pre_to_day, days = compute_days(to_day, intvl)
+    counts = []
+    session = db.open('freq')
+
+    for day in days:
+        entry = session.select({"timestamp":day})
+        if entry is None:
+            counts.append('0')
+            continue
+        count = entry[1][2]
+        counts.append(count)
+    session.close()
+
+    days = [day[5:] for day in days]
+    if vender == '0':
+        vender = 'OTHER'
+    return template('play_users',
+                    days=days,
+                    data=repr(counts).replace('\'', ''),
+                    pre_to_day=pre_to_day,
+                    next_to_day=next_to_day,
+                    intvl=intvl,
+                    vender=vender)

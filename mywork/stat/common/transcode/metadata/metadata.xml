@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Rendition id="${renditionId}">
+	<Keyframes>
+		% for keyframe in keyframes:
+		<Keyframe time="${keyframe.time}" bytes="${keyframe.bytes}" />
+		% endfor
+	</Keyframes>
+</Rendition>

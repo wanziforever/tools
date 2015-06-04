@@ -1,0 +1,6 @@
+#!/usr/bin/sh
+
+pwd=`pwd`
+echo "export PYTHONPATH=${pwd}"
+export PYTHONPATH="${pwd}"
+

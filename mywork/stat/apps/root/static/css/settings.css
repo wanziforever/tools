@@ -1,0 +1,12 @@
+body {#padding-top: 60px;#background-color: #FFFFFF;}
+.container {max-width:960px !important;}
+.settings_content {padding-top: 90px}
+.section-bar {background-color: #CCCCCC;border-radius: 3px;}
+.section-bar a.btn {width:120px;}
+.section-content {padding: 10px;}
+.section {margin: 10px;}
+.Validform_checktip{ float:left; margin-left:94px;}
+
+ul.pagi{
+    margin: 0;
+}

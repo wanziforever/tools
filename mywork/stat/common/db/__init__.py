@@ -1,0 +1,1 @@
+from common.db.model import Model

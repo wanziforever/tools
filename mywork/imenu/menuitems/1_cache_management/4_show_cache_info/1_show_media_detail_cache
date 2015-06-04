@@ -1,0 +1,78 @@
+#!/usr/bin/env python
+
+import os
+import sys
+import json
+import importlib
+
+if 'kernel' not in os.environ:
+    print "cannot find kernel path in environ"
+    exit(0)
+    
+kernel_path = os.environ['kernel']
+sys.path.append(kernel_path)
+
+from df.datamodel.schema import SCHEMA
+from df.datamodel.schema import DATATYPE
+import df.data_function as data_function
+from df.data_descriptor import DataDesc
+from core.cache import Cache_Service
+    
+detail_schema_name = "schema_Basic_Media_model"
+detail_data_type = "get_detail_page_model"
+
+welcome = (
+    '''  +-------------------------------------------\n'''
+    '''   CACHE SHOWN FOR THE MEDIA DETAIL PAGE\n'''
+    '''  -------------------------------------------+\n''')
+
+def toCh(data):
+    if not isinstance(data, dict):
+        return data
+    
+
+if __name__ == "__main__":
+    print welcome
+    mid = raw_input("show the media detail page, enter the media id: ")
+    print
+    
+    if not hasattr(SCHEMA, detail_schema_name):
+        print "no %s schema found"%detail_schema_name
+        exit(0)
+    if not hasattr(DATATYPE, detail_data_type):
+        print "no %s datatype found"%detail_data_type
+        exit(0)
+
+    data_desc = DataDesc(SCHEMA.schema_Basic_Media_model,
+                         DATATYPE.get_detail_page_model)
+    data_desc.setKey(1, mid)
+
+    s = "schema={0} | datatype={1} | mediaId={2} | cacheKey={3}".\
+        format(data_desc.schema, data_desc.data_type, mid,
+               data_function.make_hcached_key(
+                   data_desc.schema, data_desc.data_type))
+
+    print "-" * len(s)
+    print s
+    print "-" * len(s)
+
+    cachekey = data_function.make_hcached_key(data_desc.schema,
+                                              data_desc.data_type)
+    field = data_function.make_hcached_field(data_desc.getKeys())
+
+    cache = Cache_Service()
+
+    if not cache.hexists(cachekey, field):
+        print "++ Cache is NOT EXIST for [ %s ], detail page FAIL to shown"%mid
+        exit(0)
+
+    j = cache.hget(cachekey, field)
+    print "CONTENT: ", json.dumps(j, ensure_ascii=False)
+    #print "CONTENT: ", json.dumps(j, indent=2, ensure_ascii=False)
+    ttl = cache.ttl(cachekey)
+    print "TTL: ", ttl
+    
+    
+    print "++ Cache for detail page [ %s ] has been shown successfully"%mid
+
+    

@@ -1,0 +1,119 @@
+Qinfo: name: GrabberManager, send_pos: 1, recv_pos: 1, occupied_flag: 1, size:0
+Qinfo: name: CalcManager, send_pos: -1, recv_pos: 0, occupied_flag: 1, size:2047
+Qinfo: name: calcworker, send_pos: -1, recv_pos: 0, occupied_flag: 1, size:2047
+Qinfo: name: grabberworker, send_pos: -1, recv_pos: 0, occupied_flag: 1, size:2047
+Qinfo: name: , send_pos: -1, recv_pos: -1, occupied_flag: -1, size:0
+Qinfo: name: , send_pos: -1, recv_pos: -1, occupied_flag: -1, size:0
+Qinfo: name: , send_pos: -1, recv_pos: -1, occupied_flag: -1, size:0
+Qinfo: name: , send_pos: -1, recv_pos: -1, occupied_flag: -1, size:0
+Qinfo: name: , send_pos: -1, recv_pos: -1, occupied_flag: -1, size:0
+Qinfo: name: , send_pos: -1, recv_pos: -1, occupied_flag: -1, size:0
+current queue pos is 4
+Qinfo: name: GrabberManager, send_pos: 1, recv_pos: 1, occupied_flag: 1, size:0
+Qinfo: name: CalcManager, send_pos: -1, recv_pos: 0, occupied_flag: 1, size:2047
+Qinfo: name: calcworker, send_pos: -1, recv_pos: 0, occupied_flag: 1, size:2047
+Qinfo: name: grabberworker, send_pos: -1, recv_pos: 0, occupied_flag: 1, size:2047
+Qinfo: name: , send_pos: -1, recv_pos: -1, occupied_flag: -1, size:0
+Qinfo: name: , send_pos: -1, recv_pos: -1, occupied_flag: -1, size:0
+Qinfo: name: , send_pos: -1, recv_pos: -1, occupied_flag: -1, size:0
+Qinfo: name: , send_pos: -1, recv_pos: -1, occupied_flag: -1, size:0
+Qinfo: name: , send_pos: -1, recv_pos: -1, occupied_flag: -1, size:0
+Qinfo: name: , send_pos: 1, recv_pos: -1, occupied_flag: -1, size:2
+current queue pos is 4
+Qinfo: name: GrabberManager, send_pos: 1, recv_pos: 1, occupied_flag: 1, size:0
+Qinfo: name: CalcManager, send_pos: -1, recv_pos: 0, occupied_flag: 1, size:2047
+Qinfo: name: calcworker, send_pos: -1, recv_pos: 0, occupied_flag: 1, size:2047
+Qinfo: name: grabberworker, send_pos: -1, recv_pos: 0, occupied_flag: 1, size:2047
+Qinfo: name: , send_pos: -1, recv_pos: -1, occupied_flag: -1, size:0
+Qinfo: name: , send_pos: -1, recv_pos: -1, occupied_flag: -1, size:0
+Qinfo: name: , send_pos: -1, recv_pos: -1, occupied_flag: -1, size:0
+Qinfo: name: , send_pos: -1, recv_pos: -1, occupied_flag: -1, size:0
+Qinfo: name: , send_pos: -1, recv_pos: -1, occupied_flag: -1, size:0
+Qinfo: name: , send_pos: 2, recv_pos: -1, occupied_flag: -1, size:3
+current queue pos is 4
+Qinfo: name: GrabberManager, send_pos: 1, recv_pos: 1, occupied_flag: 1, size:0
+Qinfo: name: CalcManager, send_pos: -1, recv_pos: 0, occupied_flag: 1, size:2047
+Qinfo: name: calcworker, send_pos: -1, recv_pos: 0, occupied_flag: 1, size:2047
+Qinfo: name: grabberworker, send_pos: -1, recv_pos: 0, occupied_flag: 1, size:2047
+Qinfo: name: , send_pos: -1, recv_pos: -1, occupied_flag: -1, size:0
+Qinfo: name: , send_pos: -1, recv_pos: -1, occupied_flag: -1, size:0
+Qinfo: name: , send_pos: -1, recv_pos: -1, occupied_flag: -1, size:0
+Qinfo: name: , send_pos: -1, recv_pos: -1, occupied_flag: -1, size:0
+Qinfo: name: , send_pos: -1, recv_pos: -1, occupied_flag: -1, size:0
+Qinfo: name: , send_pos: 3, recv_pos: -1, occupied_flag: -1, size:4
+current queue pos is 4
+Qinfo: name: GrabberManager, send_pos: 2, recv_pos: 2, occupied_flag: 1, size:0
+Qinfo: name: CalcManager, send_pos: 1, recv_pos: 1, occupied_flag: 1, size:0
+Qinfo: name: calcworker, send_pos: -1, recv_pos: 0, occupied_flag: 1, size:2047
+Qinfo: name: grabberworker, send_pos: -1, recv_pos: 0, occupied_flag: 1, size:2047
+Qinfo: name: , send_pos: -1, recv_pos: -1, occupied_flag: -1, size:0
+Qinfo: name: , send_pos: -1, recv_pos: -1, occupied_flag: -1, size:0
+Qinfo: name: , send_pos: -1, recv_pos: -1, occupied_flag: -1, size:0
+Qinfo: name: , send_pos: -1, recv_pos: -1, occupied_flag: -1, size:0
+Qinfo: name: , send_pos: -1, recv_pos: -1, occupied_flag: -1, size:0
+Qinfo: name: , send_pos: 4, recv_pos: -1, occupied_flag: -1, size:5
+current queue pos is 4
+Qinfo: name: GrabberManager, send_pos: 2, recv_pos: 2, occupied_flag: 1, size:0
+Qinfo: name: CalcManager, send_pos: 1, recv_pos: 1, occupied_flag: 1, size:0
+Qinfo: name: calcworker, send_pos: -1, recv_pos: 0, occupied_flag: 1, size:2047
+Qinfo: name: grabberworker, send_pos: -1, recv_pos: 0, occupied_flag: 1, size:2047
+Qinfo: name: , send_pos: -1, recv_pos: -1, occupied_flag: -1, size:0
+Qinfo: name: , send_pos: -1, recv_pos: -1, occupied_flag: -1, size:0
+Qinfo: name: , send_pos: -1, recv_pos: -1, occupied_flag: -1, size:0
+Qinfo: name: , send_pos: -1, recv_pos: -1, occupied_flag: -1, size:0
+Qinfo: name: , send_pos: -1, recv_pos: -1, occupied_flag: -1, size:0
+Qinfo: name: , send_pos: 5, recv_pos: -1, occupied_flag: -1, size:6
+current queue pos is 4
+Qinfo: name: GrabberManager, send_pos: 2, recv_pos: 2, occupied_flag: 1, size:0
+Qinfo: name: CalcManager, send_pos: 1, recv_pos: 1, occupied_flag: 1, size:0
+Qinfo: name: calcworker, send_pos: -1, recv_pos: 0, occupied_flag: 1, size:2047
+Qinfo: name: grabberworker, send_pos: -1, recv_pos: 0, occupied_flag: 1, size:2047
+Qinfo: name: , send_pos: -1, recv_pos: -1, occupied_flag: -1, size:0
+Qinfo: name: , send_pos: -1, recv_pos: -1, occupied_flag: -1, size:0
+Qinfo: name: , send_pos: -1, recv_pos: -1, occupied_flag: -1, size:0
+Qinfo: name: , send_pos: -1, recv_pos: -1, occupied_flag: -1, size:0
+Qinfo: name: , send_pos: -1, recv_pos: -1, occupied_flag: -1, size:0
+Qinfo: name: , send_pos: 6, recv_pos: -1, occupied_flag: -1, size:7
+current queue pos is 4
+Qinfo: name: GrabberManager, send_pos: 2, recv_pos: 2, occupied_flag: 1, size:0
+Qinfo: name: CalcManager, send_pos: 1, recv_pos: 1, occupied_flag: 1, size:0
+Qinfo: name: calcworker, send_pos: -1, recv_pos: 0, occupied_flag: 1, size:2047
+Qinfo: name: grabberworker, send_pos: -1, recv_pos: 0, occupied_flag: 1, size:2047
+Qinfo: name: , send_pos: -1, recv_pos: -1, occupied_flag: -1, size:0
+Qinfo: name: , send_pos: -1, recv_pos: -1, occupied_flag: -1, size:0
+Qinfo: name: , send_pos: -1, recv_pos: -1, occupied_flag: -1, size:0
+Qinfo: name: , send_pos: -1, recv_pos: -1, occupied_flag: -1, size:0
+Qinfo: name: , send_pos: -1, recv_pos: -1, occupied_flag: -1, size:0
+Qinfo: name: , send_pos: 7, recv_pos: -1, occupied_flag: -1, size:8
+current queue pos is 4
+Qinfo: name: GrabberManager, send_pos: 2, recv_pos: 2, occupied_flag: 1, size:0
+Qinfo: name: CalcManager, send_pos: 1, recv_pos: 1, occupied_flag: 1, size:0
+Qinfo: name: calcworker, send_pos: -1, recv_pos: 0, occupied_flag: 1, size:2047
+Qinfo: name: grabberworker, send_pos: -1, recv_pos: 0, occupied_flag: 1, size:2047
+Qinfo: name: , send_pos: -1, recv_pos: -1, occupied_flag: -1, size:0
+Qinfo: name: , send_pos: -1, recv_pos: -1, occupied_flag: -1, size:0
+Qinfo: name: , send_pos: -1, recv_pos: -1, occupied_flag: -1, size:0
+Qinfo: name: , send_pos: -1, recv_pos: -1, occupied_flag: -1, size:0
+Qinfo: name: , send_pos: -1, recv_pos: -1, occupied_flag: -1, size:0
+Qinfo: name: , send_pos: 8, recv_pos: -1, occupied_flag: -1, size:9
+current queue pos is 4
+Qinfo: name: GrabberManager, send_pos: 3, recv_pos: 3, occupied_flag: 1, size:0
+Qinfo: name: CalcManager, send_pos: 2, recv_pos: 2, occupied_flag: 1, size:0
+Qinfo: name: calcworker, send_pos: -1, recv_pos: 0, occupied_flag: 1, size:2047
+Qinfo: name: grabberworker, send_pos: -1, recv_pos: 0, occupied_flag: 1, size:2047
+Qinfo: name: , send_pos: -1, recv_pos: -1, occupied_flag: -1, size:0
+Qinfo: name: , send_pos: -1, recv_pos: -1, occupied_flag: -1, size:0
+Qinfo: name: , send_pos: -1, recv_pos: -1, occupied_flag: -1, size:0
+Qinfo: name: , send_pos: -1, recv_pos: -1, occupied_flag: -1, size:0
+Qinfo: name: , send_pos: -1, recv_pos: -1, occupied_flag: -1, size:0
+Qinfo: name: , send_pos: 9, recv_pos: -1, occupied_flag: -1, size:10
+current queue pos is 4
+Qinfo: name: GrabberManager, send_pos: 3, recv_pos: 3, occupied_flag: 1, size:0
+Qinfo: name: CalcManager, send_pos: 2, recv_pos: 2, occupied_flag: 1, size:0
+Qinfo: name: calcworker, send_pos: -1, recv_pos: 0, occupied_flag: 1, size:2047
+Qinfo: name: grabberworker, send_pos: -1, recv_pos: 0, occupied_flag: 1, size:2047
+Qinfo: name: , send_pos: -1, recv_pos: -1, occupied_flag: -1, size:0
+Qinfo: name: , send_pos: -1, recv_pos: -1, occupied_flag: -1, size:0
+Qinfo: name: , send_pos: -1, recv_pos: -1, occupied_flag: -1, size:0
+Qinfo: name: , send_pos: -1, recv_pos: -1, occupied_flag: -1, size:0
+Qinfo: name: , sen

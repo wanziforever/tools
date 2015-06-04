@@ -1,0 +1,94 @@
+#!/usr/bin/env python
+
+import os
+import sys
+import importlib
+
+if 'kernel' not in os.environ:
+    print "cannot find kernel path in environ"
+    exit(0)
+    
+kernel_path = os.environ['kernel']
+sys.path.append(kernel_path)
+
+from core.cache import Cache_Service
+from core.settings import settings
+import df.data_function as data_function
+from df.datamodel.schema import SCHEMA
+from df.datamodel.schema import DATATYPE
+from df.data_descriptor import DataDesc
+
+cache = Cache_Service()
+
+def get_entry_num_media_detail():
+    cache_key = data_function.make_hcached_key(
+        SCHEMA.schema_Basic_Media_model,
+        DATATYPE.get_detail_page_model
+        )
+    num = cache.hlen(cache_key)
+    return num
+
+def get_entry_num_category_list():
+    cache_key = data_function.make_hcached_key(
+        SCHEMA.schema_search,
+        DATATYPE.data_type_query_all
+        )
+    num = cache.hlen(cache_key)
+    return num
+
+def get_entry_num_search_list():
+    num = 0
+    cache_key = data_function.make_hcached_key(
+        SCHEMA.schema_search,
+        DATATYPE.data_type_query_pinyin_cache
+        )
+    num += cache.hlen(cache_key)
+    
+    cache_key = data_function.make_hcached_key(
+        SCHEMA.schema_search,
+        DATATYPE.data_type_query_pinyin
+        )
+    num += cache.hlen(cache_key)
+
+    return num
+
+def get_entry_num_topic_detail():
+    cache_key = data_function.make_hcached_key(
+        SCHEMA.schema_topic_info,
+        DATATYPE.data_type_all_by_strategy_id
+        )
+    num = cache.hlen(cache_key)
+    return num
+    
+welcome = (
+    '''  +------------------------------------------------------------\n'''
+    '''   CACHE INFOMATION SUMMARY REPORT\n'''
+    '''   \n'''
+    '''   main redis system parameters and logic cache entry numbers\n'''
+    '''  ------------------------------------------------------------+\n''')
+
+if __name__ == "__main__":
+    print welcome
+    
+    print "  BELOW IS THE MAIN SYSTEM INFORMATION:"
+    print
+    print "   REDIS_HOST: \t\t%s"%settings.REDIS_HOST
+    print "   REDIS_PORT: \t\t%s"%settings.REDIS_PORT
+    info = cache.info()
+    print "   REDIS_VERSION: \t%s"%info['redis_version']
+    print "   UPTIME_IN_DAYS: \t%s"%info['uptime_in_days']
+    print "   CONNECTED_CLIENTS: \t%s"%info['connected_clients']
+    print "   USED_MEMORY: \t%s"%info['used_memory_human']
+    print "   USED_MEMORY_RSS: \t%sM"\
+          %(float(info['used_memory_rss'])/1024.0/1024.0)
+    print "   USED_MEMORY_PEAK: \t%s"%info['used_memory_peak_human']
+    print "  -------------------------------------+"
+    print
+    print "  BELOW IS THE MAIN DATA STRUCTURE INFORMATION:"
+    print
+    print "   MEDIA_DETAIL: \t%s"%(get_entry_num_media_detail())
+    print "   CATEGORY_LIST: \t%s"%(get_entry_num_category_list())
+    print "   SEARCH_LIST: \t%s"%(get_entry_num_search_list())
+    print "   TOPIC_DETAIL: \t%s"%(get_entry_num_topic_detail())
+    print "  -------------------------------------+"
+    print "++ finish cache information summary report"
